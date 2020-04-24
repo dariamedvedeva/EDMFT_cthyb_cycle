@@ -1,0 +1,170 @@
+# Discrete Fourier Transform (DFT)
+# Medvedeva, Iskakov
+import random
+import math
+import cmath
+import numpy as np
+import subprocess
+
+Delta = False
+Lambda = False
+
+def DFT(function, frequencies, tau):
+    # from time to frequency
+    N = len(function)
+    dt = tau[1] - tau[0]
+    FmList = np.zeros(frequencies.shape, dtype=np.complex)
+    for iw, w in enumerate(frequencies):
+        for it, t in enumerate(tau):
+            FmList[iw] += dt * function[it] * np.exp( w * t)
+    return FmList
+
+def InverseDFT(function, frequencies, tau, beta):
+    # from frequency to time
+    N = len(function)
+    fnList = np.zeros((tau.shape),dtype=np.complex)
+    for it, t in enumerate(tau):
+        for iw, w in enumerate(frequencies):
+            fnList[it] += function[iw] * np.exp(- w * t)
+    return fnList/beta
+
+def fermionic_mats(n, beta):
+    return (2 * n + 1) * np.pi / beta
+
+def bosonic_mats(n, beta):
+    return 2 * n * np.pi / beta
+
+def read_delta_frequencies(filename, beta, total_number_of_freqs, freqs_no_noise):
+    # read file
+    global Delta, Lambda
+    D = np.loadtxt(filename)
+    if D[0,0] == 0.0:
+        Lambda = True
+    else:
+        Delta  = True
+     
+    # frequencies from file
+    #freq_left    = -1.j*D[::-1,0]
+    freq_right  = 1.j*D[:freqs_no_noise,0]
+    freq_left   = -freq_right[::-1]
+
+    # function from file
+    #func_left   = D[::-1,1] - 1j * D[::-1,2]
+    func_right  = D[:freqs_no_noise,1] + 1j * D[:freqs_no_noise,2]
+    func_left   = func_right[::-1].real - 1j * func_right[::-1].imag
+
+    # const for tail
+    const_for_tail = freq_right[-1].imag * func_right[-1].imag
+    #const_for_tail = freq_right[-1]**2 * func_right[-1]
+    print ("const = ", const_for_tail)
+    if (len(freq_right) == len(func_right)):
+        number_of_start_freqs = len(freq_right)
+    else:
+        print ("Lengths of frequencies and a function are different")
+        os.exit()
+    frequencies_tail    = np.zeros(total_number_of_freqs - freqs_no_noise, np.complex)
+    function_tail       = np.zeros(total_number_of_freqs - freqs_no_noise, np.complex)
+
+    i = 0
+    for n in range(number_of_start_freqs, total_number_of_freqs, 1):
+        frequencies_tail[i]  = fermionic_mats(n, beta) * 1j
+        function_tail[i]     = 1j * const_for_tail / (fermionic_mats(n, beta))
+        i = i + 1
+
+    function_left_add_part = function_tail[::-1].real - 1j * function_tail[::-1].imag
+
+    # frequencies = np.concatenate((-frequencies_tail[::-1], freq_left[:], freq_right[:], frequencies_tail[:]))
+    # function    = np.concatenate((function_left_add_part[:], func_left[:], func_right[:], function_tail[:]))
+    frequencies = np.concatenate((freq_left[:], freq_right[:]))
+    function    = np.concatenate((func_left[:], func_right[:]))
+    np.savetxt("Delta_LEFT_RIGHT.dat", np.column_stack((frequencies.imag, function.real, function.imag)))
+
+    #function    = np.concatenate((D[::-1,1] - 1j * D[::-1,2], D[:,1] + 1j * D[:,2]))
+    #frequencies = np.concatenate((-1.j*D[::-1,0], 1.j*D[:,0]))
+
+#    function    = np.concatenate((func_left, func_right))
+#    frequencies = np.concatenate((freq_left, freq_right))
+#
+#    print ">>>>>>>>>>", len(function)
+#    np.savetxt("Delta_full_for_Fourier.dat", np.column_stack((frequencies.imag, function.real, function.imag)))
+
+    #if (len(D[:,1]) < total_number_of_freqs):
+    #    return frequencies2, function2
+    #elif(len(D[:,1]) == total_number_of_freqs):
+    #    return frequencies, function
+
+    return frequencies, function
+
+def chi(frequencies, function):
+    # Only for Delta and 1PGF
+    num_of_last_element = function.shape[0] - 1
+    chi = function[num_of_last_element]  * frequencies[num_of_last_element]
+    return chi
+
+def compute(beta, num_of_time_points, number_of_freqs, number_of_freqs_for_fourier, filename):
+    global Delta, Lambda
+    num_of_time_points += 1
+    
+    print ("Fourier transform Delta")
+    
+    # +++++++++++++++++ #
+    # 1. read file Delta(w) and construct negative frequency part
+    # +++++++++++++++++ #
+    frequencies, delta_freq = read_delta_frequencies(filename + ".dat", beta, number_of_freqs, number_of_freqs_for_fourier)
+    
+    print ("The number of frequencies for Fourier transform", len(frequencies))
+    num_of_frequencies = len(frequencies)
+    print ("number of frequencies = ", num_of_frequencies)
+
+    # +++++++++++++++++ #
+    # 2. tau array
+    # +++++++++++++++++ #
+    # We need much more tau-points to get proper transform back to matsubara
+    print ("number of time points = ", num_of_time_points)
+    tau = np.array(range(num_of_time_points))*beta/(num_of_time_points-1)
+    print ("time step = ", tau[1] - tau[0])
+
+    # +++++++++++++++++ #
+    # 3. FT w -> t
+    # +++++++++++++++++ #
+    
+    # 3.1 FT(Delta - tail)
+    X = chi(frequencies, delta_freq)
+    print ("X = ", X)
+    analytical_part = np.zeros((frequencies.shape),dtype=np.complex)
+    if (Delta):
+        analytical_part = X / frequencies
+    if (Lambda):
+        analytical_part = 0.0 +1j * 0.0
+    delta_minus_chi_part = delta_freq - analytical_part
+    print ("FT omega -> tau")
+    delta_time_first = InverseDFT(delta_minus_chi_part, frequencies, tau, beta)
+
+    # 3.2 FT
+    FT_analytical_part = X * 0.5
+    
+    # 3.3 Delta(tau) = Delta_minus_anylytical_part(tau) - analytical_part(tau)
+    delta_time = delta_time_first - FT_analytical_part
+    
+    # 3.4 save function
+    np.savetxt(filename + "_tau.dat", np.column_stack((tau, delta_time.real, delta_time.real)))
+    np.savetxt(filename + "_tau2.dat", np.column_stack((tau, delta_time.imag, delta_time.imag)))
+
+    f = open(filename + "_tau_ct_hyb.dat", "w")
+    for i in range(len(tau)):
+        f.write(str(i))
+        f.write(' ')
+        f.write(str(delta_time[i].real))
+        f.write(' ')
+        f.write(str(delta_time[i].real))
+        if(i < len(tau) - 1):
+            f.write('\n')
+    f.close()
+
+    # +++++++++++++++++ #
+    # 4. FT t -> w
+    # +++++++++++++++++ #
+    print ("FT tau -> omega")
+    delta_freq2 = DFT(delta_time.real, frequencies, tau)
+    np.savetxt(filename + "_check_FT.dat", np.column_stack((frequencies.imag, delta_freq2.real, delta_freq2.imag)))
+    print ("Plotting")
