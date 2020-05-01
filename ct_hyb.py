@@ -17,7 +17,7 @@ def run_ct_hyb(path, num_omp_threads, num_mpi_threads, beta, U, mu, N_W, N, numb
     arg.append('--BETA')		   	# inverse temperature
     arg.append(str(beta))
     arg.append('--L') 			    # Number of Brillouin Zone points. It was 512
-    arg.append(str(46))
+    arg.append(str(64))
     arg.append('--U')   			# interaction value. Only specify if you are not reading an U matrix
     arg.append(str(U))
     arg.append('--MU')			    # chemical potential / orbital energy values
@@ -36,14 +36,14 @@ def run_ct_hyb(path, num_omp_threads, num_mpi_threads, beta, U, mu, N_W, N, numb
 # solver control parameters
     arg.append('--FLAVORS')               # number of spin-orbitals (sometimes called flavors)
     arg.append(str(2))
-    arg.append('--cthyb.SWEEPS')          # total number of Monte Carlo sweeps to be done 10^12
-    arg.append(str(100000000))
+    arg.append('--cthyb.SWEEPS')          # total number of Monte Carlo sweeps to be done 10^9
+    arg.append(str(1000000000))
     arg.append('--cthyb.THERMALIZATION')  # thermalization sweeps
-    arg.append('1000')
+    arg.append('10000')
     arg.append('--SEED')                  # PRNG seed
     arg.append(str(0))
     arg.append('--MAX_TIME')              # maximum solver runtime 11,11  hours, 666 minutes  minutes, 86400 - 24 hours
-    arg.append(str(180))
+    arg.append(str(1800))
     arg.append('--cthyb.MEASURE_freq')  # measure in frequency domain
     arg.append(str(1))
     arg.append('--cthyb.MEASURE_nn')
@@ -56,7 +56,7 @@ def run_ct_hyb(path, num_omp_threads, num_mpi_threads, beta, U, mu, N_W, N, numb
     arg.append(str('--NMATSUBARA'))   	    # number of matsubara coefficients
     arg.append(str(number_of_fermionic_freqs))
     arg.append('--Tmax')              	    # maximum time to check if simulation has finished
-    arg.append(str(5000))
+    arg.append(str(7500))
     arg.append('--cthyb.J')            	    # Hund
     arg.append(str(0.0))
     arg.append('--cthyb.DELTA_IN_HDF5') 	# true if hybridization function file is in hdf5 format
@@ -69,8 +69,8 @@ def run_ct_hyb(path, num_omp_threads, num_mpi_threads, beta, U, mu, N_W, N, numb
     arg.append(str(N_W))
     arg.append('--cthyb.K_IN_HDF5')           # set to true if retarded interaction K is stored in hdf5
     arg.append(str(0))
-    arg.append(str('--cthyb.RET_INT_K'))    # file with the retarted interaction information. See doc for format.
-    arg.append("K_tau.dat")
+#    arg.append(str('--cthyb.RET_INT_K'))    # file with the retarted interaction information. See doc for format.
+#    arg.append("K_tau.dat")
     
 # parameters of data
     arg.append('--cthyb.MEASURE_freq') 	    # measure in frequency domain
