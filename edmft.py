@@ -117,7 +117,7 @@ else:
 
 # run CT-HYB SEGMENT solver
 number_of_fermionic_freqs               = 128
-number_of_fermionic_freqs_for_fourier   = 64   # Because of noise we cut the tail of Delta (fermionic hybr. function) off and make a Fouriet transform into the \tau - space by the first frequencies with smooth data.
+number_of_fermionic_freqs_for_fourier   = 128   # Because of noise we cut the tail of Delta (fermionic hybr. function) off and make a Fouriet transform into the \tau - space by the first frequencies with smooth data.
 number_of_bosonic_frequencies           = 64
 number_of_discrete_tau_points           = 4096  # Friedrich - 4096
 
