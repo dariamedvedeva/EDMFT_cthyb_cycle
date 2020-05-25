@@ -2,6 +2,7 @@ import subprocess
 import numpy as np
 import h5py
 import os
+import sys
 import discrete_fourier
 import shutil
 import smooth_function
@@ -168,9 +169,6 @@ def calculate_b_vectors(a1, a2, a3):
     vol = a1[0]*(a2[1]*a3[2]-a2[2]*a3[1])- a1[1]*(a2[0]*a3[2]-a3[0]*a2[2]) + a1[2]*(a2[0]*a3[1]-a2[1]*a3[0])
     print("vol = ", vol)
     
-#     %%%%%%%%%%%%%%%%%%%%%%%
-#     reciprocal space cell
-#     %%%%%%%%%%%%%%%%%%%%%%%
     tpi = 2.0 * np.pi
     b1 = [0.0, 0.0, 0.0]
     b2 = [0.0, 0.0, 0.0]
@@ -240,6 +238,8 @@ def interaction_dispersion(filename, Nk, lattice_type, param):
     
     b1, b2, b3 = get_b_vectors(lattice_type)
 
+#    b1 =
+    
     print('b1 = ', b1 )
     print('b2 = ', b2 )
     print('b3 = ', b3 )
@@ -252,51 +252,75 @@ def interaction_dispersion(filename, Nk, lattice_type, param):
             if (lattice_type == "square"):
                 kpoints_coordinates[k][i] = kpoints[k][0] * b1[i]/ (Nk - 1) + kpoints[k][1] * b2[i] / (Nk - 1)
             elif (lattice_type == "triangular"):
-                kpoints_coordinates[k][i] = kpoints[k][0] * b1[i]/ (Nk -1 ) + kpoints[k][1] * b2[i] / (Nk - 1)
+                kpoints_coordinates[k][i] = kpoints[k][0] * b1[i]/ (Nk - 1) + kpoints[k][1] * b2[i] / (Nk - 1)
     
 #    print(kpoints_coordinates)
     
     dispersion = open(filename + ".dat", "w")
     dispersion2 = open("check_dots.dat", "w")
     
-    abs_k = sqrt3
-    abs_b = 4. * np.pi * sqrt3 / 3.
-    
-    x_boundary = -4. * np.pi / 3.
-    y_boundary = -2. * np.pi / sqrt3
-    
-    print("x_boun = {}".format(x_boundary ))
-    print("y_boun = {}".format(y_boundary ))
+    if lattice_type == 'triangular':
+        abs_k = sqrt3
+        abs_b = 4. * np.pi * sqrt3 / 3.
+        
+        x_boundary = -4. * np.pi / 3.
+        y_boundary = -2. * np.pi / sqrt3
+        
+        x_boundary = 0.0
+        y_boundary = 0.0
+        
+        
+        print("shift for G point s = ( {}, {} )".format(x_boundary, y_boundary))
+#        print("y_boun = {}".format(y_boundary ))
     
     m = 0
     i = 0
-    for k in kpoints:
-#        print(k)
-        k_x = k[0]
-        k_y = k[1]
+#    for k in kpoints:
+    for k in kpoints_coordinates:
         
         # SQUARE
         if lattice_type == 'square':
-            interaction[i] = -2. * param * np.sum(np.cos(-np.pi + k * kstep_x))
+#            interaction[i] = -2. * param * np.sum(np.cos(-np.pi + k * kstep_x))
+            interaction[i] = -2. * param * np.sum(np.cos(-np.pi + k))
             
         # TRIANG
         if lattice_type == 'triangular':
+            k_x = k[0]
+            k_y = k[1]
             
-            x_coord = x_boundary + k_x * kstep_x
-            y_coord = y_boundary + k_y * kstep_y
+#            x_coord = x_boundary + k_x * kstep_x
+#            y_coord = y_boundary + k_y * kstep_y
+            
+            x_coord = x_boundary + k_x
+            y_coord = y_boundary + k_y
+            
+#            interaction[i] = -2. * param[0] * (np.cos(y_coord) + 2. * np.cos(0.5 * y_coord) * np.cos(x_coord * sqrt32))
+            interaction[i]  = -2. * param[0] * (np.cos(x_coord) + 2. * np.cos(0.5 * x_coord) * np.cos(y_coord * sqrt32))
+            interaction[i] += -2. * param[1] * (np.cos(sqrt3 * y_coord) + 2. * np.cos(3./2. * x_coord) * np.cos(y_coord * sqrt32))
+            interaction[i] += -2. * param[2] * (np.cos(2. * x_coord) + 2. * np.cos(x_coord) * np.cos(sqrt3 * y_coord ))
+            m +=1
+  #####
+        # something new and seek
         
-            if  ((x_coord < (-2. * np.pi / 3.)) and y_coord < (-abs_k * x_coord - abs_b) ):
-                interaction[i] += 0.0
-            elif((x_coord < (-2. * np.pi / 3.)) and y_coord > (abs_k * x_coord + abs_b) ):
-                interaction[i] += 0.0
-            elif ((x_coord > (2. * np.pi / 3.)) and y_coord > (-abs_k * x_coord + abs_b) ):
-                interaction[i] += 0.0
-            elif ((x_coord > (2. * np.pi / 3.)) and y_coord < (abs_k * x_coord - abs_b) ) :
-                interaction[i] += 0.0
-            else:
+        #            x_coord = x_boundary + k_x * kstep_x
+        #            y_coord = y_boundary + k_y * kstep_y
+        
+#            if  ((x_coord < (-2. * np.pi / 3.)) and y_coord < (-abs_k * x_coord - abs_b) ):
+#                interaction[i] += 0.0
+#            elif((x_coord < (-2. * np.pi / 3.)) and y_coord > (abs_k * x_coord + abs_b) ):
+#                interaction[i] += 0.0
+#            elif ((x_coord > (2. * np.pi / 3.)) and y_coord > (-abs_k * x_coord + abs_b) ):
+#                interaction[i] += 0.0
+#            elif ((x_coord > (2. * np.pi / 3.)) and y_coord < (abs_k * x_coord - abs_b) ) :
+#                interaction[i] += 0.0
+#            else:
 #                interaction[i] = -2. * param[0] * (np.cos(y_coord) + 2. * np.cos(0.5 * y_coord) * np.cos(x_coord * sqrt32))
-                interaction[i] = -2. * param[0] * (np.cos(x_coord) + 2. * np.cos(0.5 * x_coord) * np.cos(y_coord * sqrt32))
-                m +=1
+#                m +=1
+#
+# ########
+            
+            
+           # something old and seek
             # the first order neighbour
             #  ???      interaction[i] = -2. * param[0] * (np.cos(x_boundary + (k_x) * kstep_x) + 2. * np.cos(x_boundary + (0.5 * k_x) * kstep_x) * np.cos(y_boundary + (k_y * sqrt32) * kstep_y))
                 # the second order neighbours
@@ -311,93 +335,109 @@ def interaction_dispersion(filename, Nk, lattice_type, param):
         dispersion.write(str(np.round(interaction[i],6)))
         dispersion.write('\n')
         
-        
-        dispersion2.write(str(np.round(x_boundary + k_x * kstep_x, 6)))
-        dispersion2.write('\t')
-        dispersion2.write(str(np.round(y_boundary + k_y * kstep_y,6)))
-        dispersion2.write('\t')
-        
-        if  ((x_coord < (-2. * np.pi / sqrt3)) and y_coord < (-abs_k * x_coord - abs_b) ):
-            dispersion2.write(str(np.round(0.0,6)))
-        elif((x_coord < (-2. * np.pi / sqrt3)) and y_coord > (abs_k * x_coord + abs_b) ):
-            dispersion2.write(str(np.round(0.0,6)))
-        elif ((x_coord > (2. * np.pi / sqrt3)) and y_coord > (-abs_k * x_coord + abs_b) ):
-            dispersion2.write(str(np.round(0.0,6)))
-        elif ((x_coord > (2. * np.pi / sqrt3)) and y_coord < (abs_k * x_coord - abs_b) ) :
-            dispersion2.write(str(np.round(0.0,6)))
-        else:
-            dispersion2.write(str(np.round(interaction[i],6)))
-        dispersion2.write('\n')
+        if lattice_type == 'triangular':
+            dispersion2.write(str(np.round(x_boundary + k_x * kstep_x, 6)))
+            dispersion2.write('\t')
+            dispersion2.write(str(np.round(y_boundary + k_y * kstep_y,6)))
+            dispersion2.write('\t')
+            
+            if  ((x_coord < (-2. * np.pi / sqrt3)) and y_coord < (-abs_k * x_coord - abs_b) ):
+                dispersion2.write(str(np.round(0.0,6)))
+            elif((x_coord < (-2. * np.pi / sqrt3)) and y_coord > (abs_k * x_coord + abs_b) ):
+                dispersion2.write(str(np.round(0.0,6)))
+            elif ((x_coord > (2. * np.pi / sqrt3)) and y_coord > (-abs_k * x_coord + abs_b) ):
+                dispersion2.write(str(np.round(0.0,6)))
+            elif ((x_coord > (2. * np.pi / sqrt3)) and y_coord < (abs_k * x_coord - abs_b) ) :
+                dispersion2.write(str(np.round(0.0,6)))
+            else:
+                dispersion2.write(str(np.round(interaction[i],6)))
+            dispersion2.write('\n')
         
         i += 1
         
     dispersion.close()
-    dispersion2.close()
+    if lattice_type == 'triangular':
+        dispersion2.close()
     
     set_num_of_tr_points(m)
     
     return interaction, kpoints_coordinates
      
-def new_delta(mu, Nk, t, lattice_type, beta, U):
-    print ("Construct new delta function")
-    
-    # read
+def Gloc(mu, Nk, t, lattice_type, beta, U):
+   
     global sqrt32, sqrt3
-    print ("**Reading...")
     frequencies, G_imp_omega = read_G_imp_frequencies("Gw.dat")
     Delta = read_function("Delta.dat")
     Sigma = read_function("Sw.dat")
-
-    # init arrays for local quantities
+    print(Sigma)
+    
+    
+#    if (Sigma[1].imag - Sigma[0].imag > 0.0):
+#        metal = True
+#    else:
+#        metal = False
+        
     G_loc       = np.zeros(G_imp_omega.shape, dtype=np.complex64)
-    G_exact       = np.zeros(G_imp_omega.shape, dtype=np.complex64)
+    G_exact     = np.zeros(G_imp_omega.shape, dtype=np.complex64)
     Delta_new   = np.zeros(G_imp_omega.shape, dtype=np.complex64)
    
-    # if (Delta.Shape() != G_imp_omega.Shape()):
-    #	print "Error: Array sizes of Delta and Gw(impurity) functions are not equal!"
-    
-    print ("**Compute local 1PGF...")
-    print ("\nFor dimension 2!!\n")
+#    if (Delta.Shape() != G_imp_omega.Shape()):
+#        print "Error: Array sizes of Delta and Gw(impurity) functions are not equal!"
 
     # Corrections
-    corrections(frequencies, mu, Delta, Sigma, beta, U)
+#    corrections(frequencies, mu, Delta, Sigma, beta, U)
+    
+    ################################################################################
+    #                              New G_loc
+    ################################################################################
     
     t_k, kpoints_coordinates = interaction_dispersion("t_k", Nk, lattice_type, t)
-
+    
 #   We don't use + mu in that formula, because mu is implemented in the solver
-#   and you get it as a real part of Sw.dat (Self-energy).
+#   and you get it as a real part of Sw.dat (Self-energy).?
     if (lattice_type == "square"):
         for i in range(t_k.__len__()):
             G_loc += 1.0 / (frequencies + mu - t_k[i] - Sigma)
         G_loc /= Nk ** 2
     elif (lattice_type == "triangular"):
+#        if (metal):
+#            for i in range(get_num_of_tr_points()):
+#                G_loc += 1.0 / (frequencies + mu - t_k[i] - Sigma)
+#        else:
+#            for i in range(get_num_of_tr_points()):
+#                G_loc += 1.0 / (1.0/G_imp_omega + Delta - t_k[i])
+
         for i in range(get_num_of_tr_points()):
             G_loc += 1.0 / (frequencies + mu - t_k[i] - Sigma)
         G_loc /= get_num_of_tr_points()
-    
     np.savetxt("G_loc.dat", np.column_stack((frequencies.imag, G_loc.real, G_loc.imag)))
     # G_loc_smooth = smooth_function.smooth_data(frequencies.imag, G_loc, 400, "G_loc_smooth")
+    return 0
     
-    # Exact solution
-        
-    print("m = {}".format(get_num_of_tr_points()))
-    for i in range(get_num_of_tr_points()):
-        G_exact += 1.0 / (frequencies + mu - t_k[i])
-    G_exact /= get_num_of_tr_points()
-       
-    np.savetxt("G_exact.dat", np.column_stack((frequencies.imag, G_exact.real, G_exact.imag)))
+
+#    /*
+# Non interacting function
+#    print("m = {}".format(get_num_of_tr_points()))
+#    for i in range(get_num_of_tr_points()):
+#        G_exact += 1.0 / (frequencies + mu - t_k[i])
+#    G_exact /= get_num_of_tr_points()
+#    np.savetxt("G_0.dat", np.column_stack((frequencies.imag, G_exact.real, G_exact.imag)))
+#    */
     
-    ################################################################################
-    #                              New Delta
-    ################################################################################
-    print ("**Compute new delta function")
-    mix_par = 0.25
+def new_delta(mix_par):
+    filename = "Delta_new.dat"
+    print ("**Compute new delta function (write in file {}).".format(filename))
+
+    frequencies, G_imp_omega = read_G_imp_frequencies("Gw.dat")
+    Delta = read_function("Delta.dat")
+    G_loc = read_function("G_loc.dat")
+    
     print("Mixing:")
     print('{} of old Delta and {} of new Delta'.format(int((1.0 - mix_par) * 100),  int(mix_par * 100)))
-    intermixed_part = (1. / G_loc - 1. / G_imp_omega)
-    Delta_1 = (1.0 - mix_par) * Delta + mix_par * intermixed_part
-    np.savetxt("Delta_new.dat", np.column_stack((frequencies.imag, Delta_1.real, Delta_1.imag)))
-    print("File Delta_new.dat is created")
+    intermixed_part = (- 1. / G_loc + 1. / G_imp_omega)
+    Delta_new = (1.0 - mix_par) * Delta + mix_par * intermixed_part
+    np.savetxt(filename, np.column_stack((frequencies.imag, Delta_new.real, Delta_new.imag)))
+    return 0
 
 def corrections(iw, mu, Delta_omega, Sigma_omega, beta, U):
     # 1. Compute g_omega
@@ -406,7 +446,7 @@ def corrections(iw, mu, Delta_omega, Sigma_omega, beta, U):
     # 2. High frequency corrections
     X = discrete_fourier.chi(iw, Delta_omega)
     analytical_part = np.zeros((iw.shape),dtype=np.complex)
-#    analytical_part = X / iw
+    analytical_part = X / iw
     g_omega_minus_analytical_part = g_omega - analytical_part
     # 3. Compute g_tau(tau = 0)
     g_tau_0 = 0.0

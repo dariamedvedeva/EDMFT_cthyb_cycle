@@ -4,4 +4,5 @@ import discrete_fourier
 number_of_discrete_tau_points           = 4096
 #discrete_fourier.compute(40.0, number_of_discrete_tau_points, 1024, 250, "Lambda_new_smooth")
 #discrete_fourier.compute(40.0, number_of_discrete_tau_points, 1024, 250, "Delta")
-discrete_fourier.compute(40.0, number_of_discrete_tau_points, 1024, 1024, "Delta")
+# number of tau points, number of points for fourier?
+discrete_fourier.compute(40.0, number_of_discrete_tau_points, 1024, 120, "Delta")

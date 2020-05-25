@@ -15,6 +15,7 @@ import time
 import temptale as tmp
 import pathes
 import set_parameters
+from scipy import integrate
 
 #############################################
 #                                           #
@@ -52,8 +53,8 @@ lattice_type, beta, U, hartree_shift, Nk, num_of_neighbours, t, Coulomb, mu, par
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 # run CT-HYB SEGMENT solver
-number_of_fermionic_freqs               = 2048
-number_of_fermionic_freqs_for_fourier   = 1024   # Because of noise we cut the tail of Delta (fermionic hybr. function)
+number_of_fermionic_freqs               = 1024
+number_of_fermionic_freqs_for_fourier   = 512   # Because of noise we cut the tail of Delta (fermionic hybr. function)
 # off and make a Fouriet transform into the \tau - space by the first frequencies with smooth data.
 number_of_bosonic_frequencies           = 64
 number_of_discrete_tau_points           = 4096  # Friedrich - 4096
@@ -69,56 +70,88 @@ for iteration in range(0, number_of_iterations, 1):
     print ("++++++++++++++++++++++++++")
     print (" ")
 
-    #-------------------------------------------------------#
-    #               1. Delta(w) -> Delta (\tau)             #
-    #-------------------------------------------------------#
-
-    file = 'Delta.dat'
-    tmp.check_delta_file_exist(file)
-    discrete_fourier.compute(beta, number_of_discrete_tau_points, number_of_fermionic_freqs, number_of_fermionic_freqs_for_fourier, 'Delta')
-
-    #------------------------------------------------------#
-    #               2. Lambda(w) -> Lambda(\tau)           #
-    #------------------------------------------------------#
-    if(type_of_calc != "dmft"):
-        if iteration == 0:
-            # Firstly constructed file will have no noise.
-            lambda_file_name = 'Phi.dat'
-        else:
-            # Use file with reduced noise after other iterations.
-            lambda_file_name = "Lambda_new_smooth.dat"
-            tmp.check_lambda_file_exist(lambda_file_name)
-
-        retarded_function.compute_function(number_of_bosonic_frequencies, number_of_discrete_tau_points, beta, lambda_file_name)
-
-        file = 'K_tau.dat'
-        check_ktau_file_exists('K_tau.dat')
+    
+    print ("++++++++++++++++++++++++++")
+    print ("  > > > MaxEnt < < < ")
+    print ("++++++++++++++++++++++++++")
+    print (" ")
+    # 1. Gloc
+#    iteration_cycle.Gloc(mu, Nk, t, lattice_type, beta, U)
+#
+#    # 2. maxent Gloc(iw) -> Gloc(w)
+#    filename_for_maxent = 'Gloc_for_maxent.dat'
+#    local = True
+#    min_w = -5.0
+#    max_w = 5.0
+#    max_iterations_for_fitting = 1000000
+#    # +++++++++++++++++++++ #
+#    NORM = 1.0 # look at output
+#    maxent.run(path_to_maxent, beta, filename_for_maxent, local, number_of_fermionic_freqs, particle_hole_symm, min_w, max_w, max_iterations_for_fitting, NORM)
+#
+#    # 3. normalization of Gloc(w)
+#    maxent_filename = 'in.out.maxspec.dat'
+#    if (os.path.exists(maxent_filename)):
+#        w, dos = iteration_cycle.read_real_function(maxent_filename)
+#    else:
+#        print("File >> {} << doesn't exist.".format(maxent_filename))
+#        sys.exit()
+#
+#    integral = np.round(integrate.trapz(dos, w), 4)
+#    print("Integral dos = {}".format(integral))
+#    if (integral == np.round(1.0, 4)):
+#        print("DOS is normalized")
+#    else:
+#        dos /= integral
+#        # after normalization
+#        integral2 = np.round(integrate.trapz(dos, w), 4)
+#        print("Integral dos = {} after normalization".format(integral2))
+#
+#
+#    # 4. mu half filling from Gloc
+#    mu_half_filling = set_parameters.get_shift_half_filling(dos, 2*w[-1], abs(w[0]-w[1]))
+#
+#    # 5. G_loc with half filling
+#    iteration_cycle.Gloc(mu_half_filling + mu, Nk, t, lattice_type, beta, U)
+#    os.system("mv in.out.maxspec.dat in.out.maxspec_1st.dat ")
+#    maxent.run(path_to_maxent, beta, filename_for_maxent, local, number_of_fermionic_freqs, particle_hole_symm, min_w, max_w, max_iterations_for_fitting, NORM)
+    
+     #5. Maxent for Gw.
+    filename_for_maxent = 'Gw.dat'
+    local = False
+    min_w = -5.0
+    max_w = 5.0
+    max_iterations_for_fitting = 1000000
+     # +++++++++++++++++++++ #
+    NORM = 1.0 # look at output
+    maxent.run(path_to_maxent, beta, filename_for_maxent, local, number_of_fermionic_freqs, particle_hole_symm, min_w, max_w, max_iterations_for_fitting, NORM)
+     
+    maxent_filename = 'in.out.maxspec.dat'
+    if (os.path.exists(maxent_filename)):
+        w, dos = iteration_cycle.read_real_function(maxent_filename)
     else:
-        print ("DMFT Calculation --> we don't constract Phi.dat and K_tau.dat files.")
-
-    #-------------------------------------------------------#
-    #                       3. Solver                       #
-    #-------------------------------------------------------#
-    if (os.path.exists(path_to_exec_file)):
-        if (hartree_shift != 0.0):
-            print("\n > > >  W A R N I N G  < < <")
-            print("mu = U/2 is implemented in this code and is calculated automatically. ")
-            print("You are trying to calculate somethig away from half-filling, that means the sign problem "
-                  "can occure.")
-            sys.exit()
-        else:
-             # run solver if executable file exists
-            print("CT-QMC calculation began.")
-            ct_hyb.run_ct_hyb(path_to_exec_file, num_omp_threads, num_mpi_threads, beta, U, hartree_shift, number_of_bosonic_frequencies, number_of_discrete_tau_points, number_of_fermionic_freqs)
-    else:
-        print("Error! Check the path to the solver execution file. \(^o^)/ ")
+        print("File >> {} << doesn't exist.".format(maxent_filename))
         sys.exit()
 
+    integral = np.round(integrate.trapz(dos, w), 4)
+    print("Integral dos = {}".format(integral))
+    if (integral == np.round(1.0, 4)):
+        print("DOS is normalized")
+    else:
+        dos /= integral
+        # after normalization
+        integral2 = np.round(integrate.trapz(dos, w), 4)
+        print("Integral dos = {} after normalization".format(integral2))
+     
+     # 6. Shift impurity task
+    hartree_shift = set_parameters.get_shift_half_filling(dos, 2*w[-1], abs(w[0]-w[1]))
+    
+    sys.exit()
     #-------------------------------------------------------#
     #                 4. New Delta function                 #
     #-------------------------------------------------------#
-    iteration_cycle.new_delta(mu, Nk, t, lattice_type, beta, U)
-
+    mixing_parameter = 0.25
+    iteration_cycle.new_delta(mixing_parameter)
+    
     #-------------------------------------------------------#
     #               5. New Lambda function                  #
     #-------------------------------------------------------#
@@ -131,35 +164,18 @@ for iteration in range(0, number_of_iterations, 1):
     #-------------------------------------------------------#
     #             6. rename files for new_iteration         #
     #-------------------------------------------------------#
-    iteration_cycle.rename_files(iteration, type_of_calc)
+#    iteration_cycle.rename_files(iteration, type_of_calc)
 
     #-------------------------------------------------------#
     #                    7. plot                            #
     #-------------------------------------------------------#
-    os.system("./plot.sh")
-    os.system("mv plot.pdf plot_{}.pdf".format(str(iteration)))
+    os.system("./plot2.sh")
+    os.system("mv plot.pdf plot_{}.pdf".format(str('test')))
 
     #-------------------------------------------------------#
     #             6. Copy the results into folder           #
     #-------------------------------------------------------#
-    tmp.create_dir_with_files(type_of_calc)
-
-           
-    #-------------------------------------------------------#
-    #         7. M A X E N T   C A L C U L A T I O N        #
-    #-------------------------------------------------------#
-
-    local_function = True
-    if (local_function):
-        filename_for_maxent = 'Gloc_for_maxent.dat'
-    else:
-        filename_for_maxent = 'Gw_for_maxent.dat'
-    min_w = -5.0
-    max_w = 5.0
-    max_iterations_for_fitting = 10000000
-    # +++++++++++++++++++++ #
-    maxent.run(path_to_maxent, beta, filename_for_maxent, local, number_of_fermionic_freqs, particle_hole_symm, min_w, max_w, max_iterations_for_fitting)
-
+#    tmp.create_dir_with_files(type_of_calc)
 
 
     print("Time for one iteration {} min".format(np.round((time.time() - start_time)/60),2))

@@ -5,7 +5,7 @@ import discrete_fourier
 import iteration_cycle as it_cyc
 import subprocess
 
-def create_input_file_maxent(beta, data_file_name_for_maxent, num_of_data_points, PARTICLE_HOLE_SYMMETRY, min_w, max_w, max_iters_for_fitting):
+def create_input_file_maxent(beta, data_file_name_for_maxent, num_of_data_points, PARTICLE_HOLE_SYMMETRY, min_w, max_w, max_iters_for_fitting, NORM):
     file_with_parameters = open("in.param", "w")
     # inverse temperature
     file_with_parameters.write("BETA=")
@@ -14,7 +14,7 @@ def create_input_file_maxent(beta, data_file_name_for_maxent, num_of_data_points
 
     # 0 || 1
     file_with_parameters.write("PARTICLE_HOLE_SYMMETRY=")
-    file_with_parameters.write(str(PARTICLE_HOLE_SYMMETRY))
+    file_with_parameters.write(str(bool(PARTICLE_HOLE_SYMMETRY)))
     file_with_parameters.write("\n")
     
     # num of data points
@@ -54,7 +54,7 @@ def create_input_file_maxent(beta, data_file_name_for_maxent, num_of_data_points
     file_with_parameters.write("\n")
     
     # Type of frequency grid (default value: Lorentzian)
-    file_with_parameters.write("FREQUENCY_GRID=Log")
+    file_with_parameters.write("FREQUENCY_GRID=Quadratic")
     file_with_parameters.write("\n")
 
     # log_min for log grid (default value: 0.0001)
@@ -63,18 +63,19 @@ def create_input_file_maxent(beta, data_file_name_for_maxent, num_of_data_points
     file_with_parameters.write("\n")
 
     # Default model for entropy (default value: flat) "Gaussian"
-    file_with_parameters.write("DEFAULT_MODEL=\"gaussian\"")
+    file_with_parameters.write("DEFAULT_MODEL=\"double Gaussian\"")
     file_with_parameters.write("\n")
 
     # stddev - For Gaussian models
-    file_with_parameters.write("SIGMA=1.0")
+    file_with_parameters.write("SIGMA=0.5")
     file_with_parameters.write("\n")
     
-    file_with_parameters.write("GAMMA=0.5")
-    file_with_parameters.write("\n")
+#    file_with_parameters.write("GAMMA=0.5")
+#    file_with_parameters.write("\n")
 
     # shift of a model (default value: 0)
-    file_with_parameters.write("SHIFT=0.0")
+#    file_with_parameters.write("SHIFT=5.5")
+    file_with_parameters.write("SHIFT=1.0")
     file_with_parameters.write("\n")
 
     # Maximum Iterations for the fitting routine (default value: 1000)
@@ -83,21 +84,24 @@ def create_input_file_maxent(beta, data_file_name_for_maxent, num_of_data_points
     file_with_parameters.write("\n")
 
     # Number of alpha samples (default value: 60)
-    file_with_parameters.write("N_ALPHA=60")
+    file_with_parameters.write("N_ALPHA=100")
     file_with_parameters.write("\n")
     
-    file_with_parameters.write("ALPHA_MIN=0.05")
+    file_with_parameters.write("ALPHA_MIN=0.005")
     file_with_parameters.write("\n")
     
     file_with_parameters.write("ALPHA_MAX=5")
     file_with_parameters.write("\n")
 
     # true to print verbose output (default value: false)
-    file_with_parameters.write("VERBOSE=1")
+    file_with_parameters.write("VERBOSE=0")
     file_with_parameters.write("\n")
     
-    file_with_parameters.write("NORM=1.0")
-    file_with_parameters.write("\n")
+#    file_with_parameters.write("NORM=0.374355")
+    if(NORM > 0.0):
+        file_with_parameters.write("NORM=")
+        file_with_parameters.write(str(NORM))
+        file_with_parameters.write("\n")
     
     file_with_parameters.close()
 
@@ -162,12 +166,12 @@ def construct_Gloc_file_for_maxent(input_file, output_file, beta):
 
     np.savetxt(output_file, np.column_stack((w, Gloc.real, Re_Error, Gloc.imag, Im_Error)))
 
-def run(path_to_maxent, beta, filename_for_maxent, local, number_of_fermionic_freqs, particle_hole_symm, min_w, max_w, max_iterations_for_fitting):
+def run(path_to_maxent, beta, filename_for_maxent, local, number_of_fermionic_freqs, particle_hole_symm, min_w, max_w, max_iterations_for_fitting, NORM):
     
     ###
     # 1. Create input file "in.param" for MaxEnt
     ###
-    create_input_file_maxent(beta, filename_for_maxent, number_of_fermionic_freqs, particle_hole_symm, min_w, max_w, max_iterations_for_fitting)
+    create_input_file_maxent(beta, filename_for_maxent, number_of_fermionic_freqs, particle_hole_symm, min_w, max_w, max_iterations_for_fitting, NORM)
     
     if (local):
         ###

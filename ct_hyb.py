@@ -39,11 +39,11 @@ def run_ct_hyb(path, num_omp_threads, num_mpi_threads, beta, U, mu, N_W, N, numb
     arg.append('--cthyb.SWEEPS')          # total number of Monte Carlo sweeps to be done 10^9
     arg.append(str(1000000000))
     arg.append('--cthyb.THERMALIZATION')  # thermalization sweeps
-    arg.append('10000')
+    arg.append('1000')
     arg.append('--SEED')                  # PRNG seed
     arg.append(str(0))
     arg.append('--MAX_TIME')              # maximum solver runtime 11,11  hours, 666 minutes  minutes, 86400 - 24 hours
-    arg.append(str(1800))
+    arg.append(str(120))
     arg.append('--cthyb.MEASURE_freq')  # measure in frequency domain
     arg.append(str(1))
     arg.append('--cthyb.MEASURE_nn')
