@@ -22,7 +22,7 @@ import set_parameters
 #                                           #
 #############################################
 
-server          = False
+server          = True
 num_omp_threads = 1
 type_of_calc    = "dmft"
 
@@ -52,8 +52,8 @@ lattice_type, beta, U, hartree_shift, Nk, num_of_neighbours, t, Coulomb, mu, par
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 # run CT-HYB SEGMENT solver
-number_of_fermionic_freqs               = 2048
-number_of_fermionic_freqs_for_fourier   = 1024   # Because of noise we cut the tail of Delta (fermionic hybr. function)
+number_of_fermionic_freqs               = 1024
+number_of_fermionic_freqs_for_fourier   = 1000   # Because of noise we cut the tail of Delta (fermionic hybr. function)
 # off and make a Fouriet transform into the \tau - space by the first frequencies with smooth data.
 number_of_bosonic_frequencies           = 64
 number_of_discrete_tau_points           = 4096  # Friedrich - 4096
@@ -109,7 +109,7 @@ for iteration in range(0, number_of_iterations, 1):
         else:
              # run solver if executable file exists
             print("CT-QMC calculation began.")
-            ct_hyb.run_ct_hyb(path_to_exec_file, num_omp_threads, num_mpi_threads, beta, U, hartree_shift, number_of_bosonic_frequencies, number_of_discrete_tau_points, number_of_fermionic_freqs)
+        ct_hyb.run_ct_hyb(path_to_exec_file, num_omp_threads, num_mpi_threads, beta, U, hartree_shift, number_of_bosonic_frequencies, number_of_discrete_tau_points, number_of_fermionic_freqs)
     else:
         print("Error! Check the path to the solver execution file. \(^o^)/ ")
         sys.exit()
@@ -131,7 +131,7 @@ for iteration in range(0, number_of_iterations, 1):
     #-------------------------------------------------------#
     #             6. rename files for new_iteration         #
     #-------------------------------------------------------#
-    iteration_cycle.rename_files(iteration, type_of_calc)
+ #   iteration_cycle.rename_files(iteration, type_of_calc)
 
     #-------------------------------------------------------#
     #                    7. plot                            #
@@ -142,7 +142,7 @@ for iteration in range(0, number_of_iterations, 1):
     #-------------------------------------------------------#
     #             6. Copy the results into folder           #
     #-------------------------------------------------------#
-    tmp.create_dir_with_files(type_of_calc)
+ #   tmp.create_dir_with_files(type_of_calc)
 
            
     #-------------------------------------------------------#
@@ -158,7 +158,7 @@ for iteration in range(0, number_of_iterations, 1):
     max_w = 5.0
     max_iterations_for_fitting = 10000000
     # +++++++++++++++++++++ #
-    maxent.run(path_to_maxent, beta, filename_for_maxent, local, number_of_fermionic_freqs, particle_hole_symm, min_w, max_w, max_iterations_for_fitting)
+   # maxent.run(path_to_maxent, beta, filename_for_maxent, local, number_of_fermionic_freqs, particle_hole_symm, min_w, max_w, max_iterations_for_fitting)
 
 
 

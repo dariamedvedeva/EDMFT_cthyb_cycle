@@ -134,8 +134,8 @@ def compute(beta, num_of_time_points, number_of_freqs, number_of_freqs_for_fouri
     print ("X = ", X)
     analytical_part = np.zeros((frequencies.shape),dtype=np.complex)
     if (Delta):
-#        analytical_part = X / frequencies
         analytical_part = X / frequencies
+#        analytical_part = X / frequencies + X / (frequencies**2)
     if (Lambda):
         analytical_part = 0.0 +1j * 0.0
     delta_minus_chi_part = delta_freq - analytical_part
@@ -144,7 +144,7 @@ def compute(beta, num_of_time_points, number_of_freqs, number_of_freqs_for_fouri
 
     # 3.2 FT
     FT_analytical_part = - X * 0.5
-#    FT_analytical_part = - X * (2*tau - beta)/4.0
+#    FT_analytical_part =  X * (2*tau - beta)/4.0
     # 3.3 Delta(tau) = Delta_minus_anylytical_part(tau) - analytical_part(tau)
     delta_time = delta_time_first + FT_analytical_part
     

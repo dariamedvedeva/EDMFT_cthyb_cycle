@@ -25,7 +25,7 @@ def run_ct_hyb(path, num_omp_threads, num_mpi_threads, beta, U, mu, N_W, N, numb
     arg.append('--N')               # number of imaginary time discretization points
     arg.append(str(N))
     arg.append('--cthyb.N_MEAS')	# number of updates per measurement
-    arg.append('50')
+    arg.append('2000')
     arg.append('--cthyb.N_SHIFT')    # number of shift updates
     arg.append('10')
     arg.append('--cthyb.N_SWAP')    # number of shift swap updates
@@ -37,13 +37,13 @@ def run_ct_hyb(path, num_omp_threads, num_mpi_threads, beta, U, mu, N_W, N, numb
     arg.append('--FLAVORS')               # number of spin-orbitals (sometimes called flavors)
     arg.append(str(2))
     arg.append('--cthyb.SWEEPS')          # total number of Monte Carlo sweeps to be done 10^9
-    arg.append(str(1000000000))
+    arg.append(str(10000000))
     arg.append('--cthyb.THERMALIZATION')  # thermalization sweeps
-    arg.append('1000')
+    arg.append('100')
     arg.append('--SEED')                  # PRNG seed
     arg.append(str(0))
-    arg.append('--MAX_TIME')              # maximum solver runtime 11,11  hours, 666 minutes  minutes, 86400 - 24 hours
-    arg.append(str(120))
+    arg.append('--MAX_TIME')              # maximum solver runtime 
+    arg.append(str(57600))
     arg.append('--cthyb.MEASURE_freq')  # measure in frequency domain
     arg.append(str(1))
     arg.append('--cthyb.MEASURE_nn')

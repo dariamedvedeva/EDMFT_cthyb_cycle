@@ -12,9 +12,7 @@ set title "Delta"
 plot "Delta.dat" using 1:2 with lines lc 0 lw 2 dt '-' title 'Delta_{old} Re',\
     "Delta.dat" using 1:3 with lines lc 0 lw 2 title 'Delta_{old} Im',\
     "Delta_new.dat" using 1:2 with lines lc 7 lw 2 dt '-' title 'Delta_{new} Re',\
-    "Delta_new.dat" using 1:3 with lines lc 7 lw 2 title 'Delta_{new} Im',\
-    "Delta_new_extrapolation.dat" using 1:2 with lines lc 3 lw 2 dt '-' title 'Delta_{new} Re',\
-    "Delta_new_extrapolation.dat" using 1:3 with lines lc 3 lw 2 title 'Delta_{new} Im'
+    "Delta_new.dat" using 1:3 with lines lc 7 lw 2 title 'Delta_{new} Im'
     
 #set title "Lambda"
 #plot "Phi_0.dat" using 1:2 with lines title 'Phi_0 Re',\

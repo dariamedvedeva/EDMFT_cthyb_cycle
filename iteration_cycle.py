@@ -6,6 +6,9 @@ import sys
 import discrete_fourier
 import shutil
 import smooth_function
+from scipy.interpolate import UnivariateSpline
+from pylab import *
+from scipy.optimize import curve_fit
 
 global sqrt32, sqrt3
 sqrt32 = np.sqrt(3.)/2.
@@ -223,29 +226,23 @@ def get_kstep(lattice_type, Nk):
         # compute step in the grid
         kstep_x = 2. * (4.0 * np.pi / 3. )/ (Nk - 1)
         kstep_y = (2. * (2. * np.pi / sqrt3)) / (Nk - 1)
-#        kstep_y = ((2. * np.pi / sqrt3) * 2.) / (Nk - 1)
-#        kstep_x = (2. * (2. * np.pi)) / (Nk - 1)
         print("kstep_x = " , str(kstep_x), "\nkstep_y = " , str(kstep_y))
     return kstep_x, kstep_y
 
 def interaction_dispersion(filename, Nk, lattice_type, param):
     
     kpoints = np.array([[[x, y] for x in range(Nk)] for y in range(Nk)]).reshape((Nk * Nk, 2))
-    
     kpoints_coordinates = np.zeros((Nk*Nk, 2), dtype = np.float)
-    
     interaction = np.zeros(Nk * Nk, dtype = np.float)
     
     b1, b2, b3 = get_b_vectors(lattice_type)
-
-#    b1 =
     
-    print('b1 = ', b1 )
-    print('b2 = ', b2 )
-    print('b3 = ', b3 )
+#    print('b1 = ', b1 )
+#    print('b2 = ', b2 )
+#    print('b3 = ', b3 )
 
-    kstep_x, kstep_y = get_kstep(lattice_type, Nk )
-
+    kstep_x, kstep_y = get_kstep(lattice_type, Nk)
+    
     for k in range(Nk * Nk):
         vec_ = [0.0, 0.0]
         for i in range(2):
@@ -254,79 +251,36 @@ def interaction_dispersion(filename, Nk, lattice_type, param):
             elif (lattice_type == "triangular"):
                 kpoints_coordinates[k][i] = kpoints[k][0] * b1[i]/ (Nk - 1) + kpoints[k][1] * b2[i] / (Nk - 1)
     
-#    print(kpoints_coordinates)
-    
     dispersion = open(filename + ".dat", "w")
-    dispersion2 = open("check_dots.dat", "w")
     
     if lattice_type == 'triangular':
         abs_k = sqrt3
         abs_b = 4. * np.pi * sqrt3 / 3.
         
-        x_boundary = -4. * np.pi / 3.
-        y_boundary = -2. * np.pi / sqrt3
-        
+#        x_boundary = -4. * np.pi / 3.
+#        y_boundary = -2. * np.pi / sqrt3
+# OR
         x_boundary = 0.0
         y_boundary = 0.0
-        
-        
-        print("shift for G point s = ( {}, {} )".format(x_boundary, y_boundary))
-#        print("y_boun = {}".format(y_boundary ))
+#        print("shift for G point s = ( {}, {} )".format(x_boundary, y_boundary))
     
     m = 0
     i = 0
-#    for k in kpoints:
     for k in kpoints_coordinates:
         
         # SQUARE
         if lattice_type == 'square':
-#            interaction[i] = -2. * param * np.sum(np.cos(-np.pi + k * kstep_x))
             interaction[i] = -2. * param * np.sum(np.cos(-np.pi + k))
-            
         # TRIANG
         if lattice_type == 'triangular':
             k_x = k[0]
             k_y = k[1]
-            
-#            x_coord = x_boundary + k_x * kstep_x
-#            y_coord = y_boundary + k_y * kstep_y
-            
             x_coord = x_boundary + k_x
             y_coord = y_boundary + k_y
-            
-#            interaction[i] = -2. * param[0] * (np.cos(y_coord) + 2. * np.cos(0.5 * y_coord) * np.cos(x_coord * sqrt32))
             interaction[i]  = -2. * param[0] * (np.cos(x_coord) + 2. * np.cos(0.5 * x_coord) * np.cos(y_coord * sqrt32))
             interaction[i] += -2. * param[1] * (np.cos(sqrt3 * y_coord) + 2. * np.cos(3./2. * x_coord) * np.cos(y_coord * sqrt32))
             interaction[i] += -2. * param[2] * (np.cos(2. * x_coord) + 2. * np.cos(x_coord) * np.cos(sqrt3 * y_coord ))
             m +=1
-  #####
-        # something new and seek
-        
-        #            x_coord = x_boundary + k_x * kstep_x
-        #            y_coord = y_boundary + k_y * kstep_y
-        
-#            if  ((x_coord < (-2. * np.pi / 3.)) and y_coord < (-abs_k * x_coord - abs_b) ):
-#                interaction[i] += 0.0
-#            elif((x_coord < (-2. * np.pi / 3.)) and y_coord > (abs_k * x_coord + abs_b) ):
-#                interaction[i] += 0.0
-#            elif ((x_coord > (2. * np.pi / 3.)) and y_coord > (-abs_k * x_coord + abs_b) ):
-#                interaction[i] += 0.0
-#            elif ((x_coord > (2. * np.pi / 3.)) and y_coord < (abs_k * x_coord - abs_b) ) :
-#                interaction[i] += 0.0
-#            else:
-#                interaction[i] = -2. * param[0] * (np.cos(y_coord) + 2. * np.cos(0.5 * y_coord) * np.cos(x_coord * sqrt32))
-#                m +=1
-#
-# ########
-            
-            
-           # something old and seek
-            # the first order neighbour
-            #  ???      interaction[i] = -2. * param[0] * (np.cos(x_boundary + (k_x) * kstep_x) + 2. * np.cos(x_boundary + (0.5 * k_x) * kstep_x) * np.cos(y_boundary + (k_y * sqrt32) * kstep_y))
-                # the second order neighbours
-#            interaction[i] += -2. * param[1] * (np.cos(-np.pi + (sqrt3 * k_y) * kstep_y) + 2. * np.cos(-np.pi + (1.5 * k_x) * kstep_x) * np.cos(-np.pi + (sqrt32 * k_y) * kstep_y))
-                # the third order neighbours
-#            interaction[i] += -2. * param[2] * (np.cos(-np.pi + (2. * k_x) * kstep_x) + 2. * np.cos(-np.pi + (k_x) * kstep_x) * np.cos(-np.pi + (sqrt3 * k_y) * kstep_y))
             
         dispersion.write(str(np.round(k_x, 6)))
         dispersion.write('\t')
@@ -334,33 +288,10 @@ def interaction_dispersion(filename, Nk, lattice_type, param):
         dispersion.write('\t')
         dispersion.write(str(np.round(interaction[i],6)))
         dispersion.write('\n')
-        
-        if lattice_type == 'triangular':
-            dispersion2.write(str(np.round(x_boundary + k_x * kstep_x, 6)))
-            dispersion2.write('\t')
-            dispersion2.write(str(np.round(y_boundary + k_y * kstep_y,6)))
-            dispersion2.write('\t')
-            
-            if  ((x_coord < (-2. * np.pi / sqrt3)) and y_coord < (-abs_k * x_coord - abs_b) ):
-                dispersion2.write(str(np.round(0.0,6)))
-            elif((x_coord < (-2. * np.pi / sqrt3)) and y_coord > (abs_k * x_coord + abs_b) ):
-                dispersion2.write(str(np.round(0.0,6)))
-            elif ((x_coord > (2. * np.pi / sqrt3)) and y_coord > (-abs_k * x_coord + abs_b) ):
-                dispersion2.write(str(np.round(0.0,6)))
-            elif ((x_coord > (2. * np.pi / sqrt3)) and y_coord < (abs_k * x_coord - abs_b) ) :
-                dispersion2.write(str(np.round(0.0,6)))
-            else:
-                dispersion2.write(str(np.round(interaction[i],6)))
-            dispersion2.write('\n')
-        
         i += 1
-        
     dispersion.close()
-    if lattice_type == 'triangular':
-        dispersion2.close()
     
     set_num_of_tr_points(m)
-    
     return interaction, kpoints_coordinates
      
 def Gloc(mu, Nk, t, lattice_type, beta, U):
@@ -400,15 +331,11 @@ def Gloc(mu, Nk, t, lattice_type, beta, U):
             G_loc += 1.0 / (frequencies + mu - t_k[i] - Sigma)
         G_loc /= Nk ** 2
     elif (lattice_type == "triangular"):
-#        if (metal):
-#            for i in range(get_num_of_tr_points()):
-#                G_loc += 1.0 / (frequencies + mu - t_k[i] - Sigma)
-#        else:
-#            for i in range(get_num_of_tr_points()):
-#                G_loc += 1.0 / (1.0/G_imp_omega + Delta - t_k[i])
-
+#        Sigma = smooth_function.smooth_data(frequencies.imag, Sigma, 400, "Sigma_smooth")
         for i in range(get_num_of_tr_points()):
-            G_loc += 1.0 / (frequencies + mu - t_k[i] - Sigma)
+#            G_loc += 1.0 / (frequencies + mu - t_k[i] - Sigma)
+            # because of constant shift
+            G_loc += 1.0 / (frequencies + mu - t_k[i] - (Sigma - U/2.))
         G_loc /= get_num_of_tr_points()
     np.savetxt("G_loc.dat", np.column_stack((frequencies.imag, G_loc.real, G_loc.imag)))
     # G_loc_smooth = smooth_function.smooth_data(frequencies.imag, G_loc, 400, "G_loc_smooth")
@@ -429,13 +356,67 @@ def new_delta(mix_par):
     print ("**Compute new delta function (write in file {}).".format(filename))
 
     frequencies, G_imp_omega = read_G_imp_frequencies("Gw.dat")
+# Tryings to smooth. All of them works
+#    G_imp_omega = smooth_function.smooth_data(frequencies.imag, G_imp_omega, 400, "G_imp_omega")
+#    G_imp_omega = smooth_function.reduce_noise(frequencies, G_imp_omega, 15, "Gw_smooth")
     Delta = read_function("Delta.dat")
     G_loc = read_function("G_loc.dat")
     
     print("Mixing:")
     print('{} of old Delta and {} of new Delta'.format(int((1.0 - mix_par) * 100),  int(mix_par * 100)))
-    intermixed_part = (- 1. / G_loc + 1. / G_imp_omega)
+    intermixed_part = (1. / G_imp_omega - 1. / G_loc)
     Delta_new = (1.0 - mix_par) * Delta + mix_par * intermixed_part
+    np.savetxt(filename, np.column_stack((frequencies.imag, Delta_new.real, Delta_new.imag)))
+    # extrapolation for substitution of the noise
+    # 1. extrapolations with polyfit and deg > 0 don't work properly for hyperbole
+#    i = 50
+#    poly = np.polyfit(frequencies[:i].imag, Delta_new[:i].real, deg=0.5)
+#    for j in range(i + 1, len(frequencies), 1):
+#        fr = frequencies[j].imag
+#        y_int  = np.polyval(poly, fr)
+#        Delta_new.real[j] = y_int
+    # 2. more difficilt extrapolation
+#    def analytical_approx(arg, c0, c1, c2, c3, c4, c5):
+#        return c0 + c1*arg - c2 * np.exp(-c3 * arg)
+#         return c0 + c1*arg + c2 * np.log(c3 * arg) - c4 * np.exp(-c5 * arg)
+#    def analytical_approx2(arg, c0, c1, c2, c3):
+#        return c0 + c1*arg - c2 * np.exp(-c3 * arg)
+
+    # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - #
+    i = 50
+    chi = (Delta_new[i]*frequencies[i])
+    
+    def analytical_approx_re(arg, c0, c2, c4, c6):
+        return c0 - c2/(arg**2) + c4/(arg**4) + c6/(arg**6)
+
+    def analytical_approx_im(arg, c0, c1, c3, c5):
+        return c0 - c1/arg - c3/(arg**3) + c5/(arg**5)
+
+#    def analytical_approx_cmplx(arg, c0, c1, c2, c3, c4):
+#        return c0 - 1j * c1/arg - c2/(arg**2) + 1j * c3/(arg**3) + c4/(arg**4)
+        
+    # first i frequencies
+    
+    # real part
+    c_start = [Delta_new.real[0], chi.real, chi.real, chi.real]
+    c, cov = curve_fit(analytical_approx_re, frequencies.imag[:i], Delta_new.real[:i], c_start, maxfev = 500000)
+    print(c)
+    Delta_new.real = analytical_approx_re(frequencies.imag, c[0], c[1], c[2], c[3])
+
+    # imag part
+    g_start = [Delta_new.imag[0], chi.imag, chi.imag, chi.imag]
+    g, cov = curve_fit(analytical_approx_im, frequencies.imag[:i], Delta_new.imag[:i], g_start, maxfev = 500000)
+    print(g)
+    Delta_new.imag = analytical_approx_im(frequencies.imag, g[0], g[1], g[2], g[3])
+#    Delta_new = analytical_approx_cmplx(frequencies, c[0]+ 1j*g[0], g[1], c[1], g[2], c[2])
+    # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - #
+#    f_start = [Delta_new[0], chi.real, chi.real, chi.real, chi.real, chi.real, chi.real]
+#    f, cov = curve_fit(residuals3_2, frequencies[:i], Delta_new.imag[:i], f_start, maxfev = 500000)
+#    Delta_new = analytical_approx_cmplx(frequencies.imag, f[0], f[1], f[2], f[3], f[4], f[5], f[6])
+
+    # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - #
+    
+    filename = 'Delta_new_extrapolation.dat'
     np.savetxt(filename, np.column_stack((frequencies.imag, Delta_new.real, Delta_new.imag)))
     return 0
 

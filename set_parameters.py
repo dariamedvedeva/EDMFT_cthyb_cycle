@@ -6,11 +6,11 @@ import numpy as np
 #############################################
 def set_model_parameters():
     lattice_type        = 'triangular' # write square || triangular
-    beta                = 100.     # inversive temperature as \beta = 1./T
-    U                   = 0.      # local (inter-site) Hubbard repulsion
+    beta                = 50.     # inversive temperature as \beta = 1./T
+    U                   = 1.0      # local (inter-site) Hubbard repulsion
     #mu                  = U/2.   # for a half filling U / 2. In case of square lattice it should be mu = U/2. !!!!
     #mu                  = 0.8 * t
-    hartree_shift       = 0.0      # Hartree shift (\mu in ct-hyb). for a half filling U / 2. In the tutorial it is written
+    hartree_shift       = -0.0      # Hartree shift (\mu in ct-hyb). for a half filling U / 2. In the tutorial it is written
     # that mu = U/2 isn't implemented, but it is (!!!). Automatically mu = U/2, for half-filling.
     # The sign problem can occure away from half-filling. Don't touch.
     Nk                  = 64       # num. of kpoints in each direction, 64 is better for qmc (Friedrich K.)

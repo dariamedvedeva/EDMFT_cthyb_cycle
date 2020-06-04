@@ -75,8 +75,9 @@ for iteration in range(0, number_of_iterations, 1):
     print ("  > > > MaxEnt < < < ")
     print ("++++++++++++++++++++++++++")
     print (" ")
-    # 1. Gloc
-#    iteration_cycle.Gloc(mu, Nk, t, lattice_type, beta, U)
+    
+#    # 1. Gloc
+    iteration_cycle.Gloc(mu, Nk, t, lattice_type, beta, U)
 #
 #    # 2. maxent Gloc(iw) -> Gloc(w)
 #    filename_for_maxent = 'Gloc_for_maxent.dat'
@@ -106,46 +107,65 @@ for iteration in range(0, number_of_iterations, 1):
 #        integral2 = np.round(integrate.trapz(dos, w), 4)
 #        print("Integral dos = {} after normalization".format(integral2))
 #
-#
 #    # 4. mu half filling from Gloc
 #    mu_half_filling = set_parameters.get_shift_half_filling(dos, 2*w[-1], abs(w[0]-w[1]))
+#    os.system("mv in.out.maxspec.dat in.out.maxspec_G_loc_before.dat ")
 #
-#    # 5. G_loc with half filling
+##    mu_half_filling = 0.351889
+##     5. G_loc with half filling
 #    iteration_cycle.Gloc(mu_half_filling + mu, Nk, t, lattice_type, beta, U)
-#    os.system("mv in.out.maxspec.dat in.out.maxspec_1st.dat ")
 #    maxent.run(path_to_maxent, beta, filename_for_maxent, local, number_of_fermionic_freqs, particle_hole_symm, min_w, max_w, max_iterations_for_fitting, NORM)
-    
-     #5. Maxent for Gw.
-    filename_for_maxent = 'Gw.dat'
-    local = False
-    min_w = -5.0
-    max_w = 5.0
-    max_iterations_for_fitting = 1000000
-     # +++++++++++++++++++++ #
-    NORM = 1.0 # look at output
-    maxent.run(path_to_maxent, beta, filename_for_maxent, local, number_of_fermionic_freqs, particle_hole_symm, min_w, max_w, max_iterations_for_fitting, NORM)
-     
-    maxent_filename = 'in.out.maxspec.dat'
-    if (os.path.exists(maxent_filename)):
-        w, dos = iteration_cycle.read_real_function(maxent_filename)
-    else:
-        print("File >> {} << doesn't exist.".format(maxent_filename))
-        sys.exit()
+#
+#    # 6. normalization of Gloc(w)
+#    maxent_filename = 'in.out.maxspec.dat'
+#    if (os.path.exists(maxent_filename)):
+#        w, dos = iteration_cycle.read_real_function(maxent_filename)
+#    else:
+#        print("File >> {} << doesn't exist.".format(maxent_filename))
+#        sys.exit()
+#
+#    integral = np.round(integrate.trapz(dos, w), 4)
+#    print("Integral dos = {}".format(integral))
+#    if (integral == np.round(1.0, 4)):
+#        print("DOS is normalized")
+#    else:
+#        dos /= integral
+#        # after normalization
+#        integral2 = np.round(integrate.trapz(dos, w), 4)
+#        print("Integral dos = {} after normalization".format(integral2))
+#
+#    # 7. mu half filling from Gloc
+##    mu_half_filling = set_parameters.get_shift_half_filling(dos, 2*w[-1], abs(w[0]-w[1]))
+#    os.system("mv in.out.maxspec.dat in.out.maxspec_G_loc_before.dat ")
+  
+#    # 8. Maxent for Gw.
+#    filename_for_maxent = 'Gw_for_maxent.dat'
+#    local = False
+#    min_w = -5.0
+#    max_w = 5.0
+#    max_iterations_for_fitting = 1000000
+#     # +++++++++++++++++++++ #
+#    NORM = 1.0 # look at output
+#    maxent.run(path_to_maxent, beta, filename_for_maxent, local, number_of_fermionic_freqs, particle_hole_symm, min_w, max_w, max_iterations_for_fitting, NORM)
+#
+#    maxent_filename = 'in.out.maxspec.dat'
+#    if (os.path.exists(maxent_filename)):
+#        w, dos = iteration_cycle.read_real_function(maxent_filename)
+#    else:
+#        print("File >> {} << doesn't exist.".format(maxent_filename))
+#        sys.exit()
 
-    integral = np.round(integrate.trapz(dos, w), 4)
-    print("Integral dos = {}".format(integral))
-    if (integral == np.round(1.0, 4)):
-        print("DOS is normalized")
-    else:
-        dos /= integral
-        # after normalization
-        integral2 = np.round(integrate.trapz(dos, w), 4)
-        print("Integral dos = {} after normalization".format(integral2))
-     
-     # 6. Shift impurity task
-    hartree_shift = set_parameters.get_shift_half_filling(dos, 2*w[-1], abs(w[0]-w[1]))
-    
-    sys.exit()
+#    integral = np.round(integrate.trapz(dos, w), 4)
+#    print("Integral dos = {}".format(integral))
+#    if (integral == np.round(1.0, 4)):
+#        print("DOS is normalized")
+#    else:
+#        dos /= integral
+#        # after normalization
+#        integral2 = np.round(integrate.trapz(dos, w), 4)
+#        print("Integral dos = {} after normalization".format(integral2))
+#    os.system("mv in.out.maxspec.dat in.out.maxspec_Gw.dat ")
+
     #-------------------------------------------------------#
     #                 4. New Delta function                 #
     #-------------------------------------------------------#
@@ -169,7 +189,7 @@ for iteration in range(0, number_of_iterations, 1):
     #-------------------------------------------------------#
     #                    7. plot                            #
     #-------------------------------------------------------#
-    os.system("./plot2.sh")
+    os.system("./plot.sh")
     os.system("mv plot.pdf plot_{}.pdf".format(str('test')))
 
     #-------------------------------------------------------#

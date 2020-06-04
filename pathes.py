@@ -1,6 +1,6 @@
 def get_server_run():
     path_to_exec_file   = '/storage/praha1/home/medvedeva/workspace/other_codes/CT_HYB_SEGMENT/CT-HYB-SEGMENT/build/alps_cthyb'
-    num_mpi_threads     = 42
+    num_mpi_threads     = 16
     path_to_maxent      = ''
     return path_to_exec_file, num_mpi_threads, path_to_maxent
 
