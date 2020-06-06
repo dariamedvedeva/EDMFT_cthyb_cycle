@@ -22,7 +22,7 @@ import set_parameters
 #                                           #
 #############################################
 
-server          = True
+server          = False
 num_omp_threads = 1
 type_of_calc    = "dmft"
 
@@ -53,16 +53,16 @@ lattice_type, beta, U, hartree_shift, Nk, num_of_neighbours, t, Coulomb, mu, par
 
 # run CT-HYB SEGMENT solver
 number_of_fermionic_freqs               = 1024
-number_of_fermionic_freqs_for_fourier   = 1000   # Because of noise we cut the tail of Delta (fermionic hybr. function)
+number_of_fermionic_freqs_for_fourier   = 512   # Because of noise we cut the tail of Delta (fermionic hybr. function)
 # off and make a Fouriet transform into the \tau - space by the first frequencies with smooth data.
 number_of_bosonic_frequencies           = 64
 number_of_discrete_tau_points           = 4096  # Friedrich - 4096
 
 
-number_of_iterations = 1
+number_of_iterations = 3
 start_time = time.time()
 
-for iteration in range(0, number_of_iterations, 1):
+for iteration in range(1, number_of_iterations, 1):
     print (" ")
     print ("++++++++++++++++++++++++++")
     print ("ITERATION NUMBER ", str(iteration))
@@ -117,7 +117,11 @@ for iteration in range(0, number_of_iterations, 1):
     #-------------------------------------------------------#
     #                 4. New Delta function                 #
     #-------------------------------------------------------#
-    iteration_cycle.new_delta(mu, Nk, t, lattice_type, beta, U)
+    # 1. Gloc
+    iteration_cycle.Gloc(mu, Nk, t, lattice_type, beta, U)
+    # 2. Delta
+    mixing_parameter = 0.25
+    iteration_cycle.new_delta(mixing_parameter)
 
     #-------------------------------------------------------#
     #               5. New Lambda function                  #
@@ -129,38 +133,20 @@ for iteration in range(0, number_of_iterations, 1):
         print("New Lambda function is not calculated.")
 
     #-------------------------------------------------------#
-    #             6. rename files for new_iteration         #
-    #-------------------------------------------------------#
- #   iteration_cycle.rename_files(iteration, type_of_calc)
-
-    #-------------------------------------------------------#
-    #                    7. plot                            #
+    #                    6. plot                            #
     #-------------------------------------------------------#
     os.system("./plot.sh")
     os.system("mv plot.pdf plot_{}.pdf".format(str(iteration)))
 
     #-------------------------------------------------------#
-    #             6. Copy the results into folder           #
+    #             7. rename files for new_iteration         #
     #-------------------------------------------------------#
- #   tmp.create_dir_with_files(type_of_calc)
+    iteration_cycle.rename_files(iteration, type_of_calc)
 
-           
     #-------------------------------------------------------#
-    #         7. M A X E N T   C A L C U L A T I O N        #
+    #             8. Copy the results into folder           #
     #-------------------------------------------------------#
-
-    local_function = True
-    if (local_function):
-        filename_for_maxent = 'Gloc_for_maxent.dat'
-    else:
-        filename_for_maxent = 'Gw_for_maxent.dat'
-    min_w = -5.0
-    max_w = 5.0
-    max_iterations_for_fitting = 10000000
-    # +++++++++++++++++++++ #
-   # maxent.run(path_to_maxent, beta, filename_for_maxent, local, number_of_fermionic_freqs, particle_hole_symm, min_w, max_w, max_iterations_for_fitting)
-
-
+    tmp.create_dir_with_files(type_of_calc)
 
     print("Time for one iteration {} min".format(np.round((time.time() - start_time)/60),2))
         

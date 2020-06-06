@@ -4,7 +4,7 @@ gnuplot << 'EOF'
 set terminal pdf
 set output "plot_maxent.pdf"
 
-set multiplot layout 4,3
+#set multiplot layout 4,3
 
 set title "in.out.avspec.dat"
 plot "in.out.avspec.dat" u 1:2 w l, "in.out.avspec.dat" u 1:3 w l
@@ -36,7 +36,7 @@ plot "in.out.prob.dat" u 1:2 w l
 set title "in.out.spex.dat"
 plot "in.out.spex.dat" u 1:2 w l
 
-unset multiplot
+#unset multiplot
 
 pause -1
 'EOF'

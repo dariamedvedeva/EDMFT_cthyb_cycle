@@ -367,22 +367,9 @@ def new_delta(mix_par):
     intermixed_part = (1. / G_imp_omega - 1. / G_loc)
     Delta_new = (1.0 - mix_par) * Delta + mix_par * intermixed_part
     np.savetxt(filename, np.column_stack((frequencies.imag, Delta_new.real, Delta_new.imag)))
-    # extrapolation for substitution of the noise
-    # 1. extrapolations with polyfit and deg > 0 don't work properly for hyperbole
-#    i = 50
-#    poly = np.polyfit(frequencies[:i].imag, Delta_new[:i].real, deg=0.5)
-#    for j in range(i + 1, len(frequencies), 1):
-#        fr = frequencies[j].imag
-#        y_int  = np.polyval(poly, fr)
-#        Delta_new.real[j] = y_int
-    # 2. more difficilt extrapolation
-#    def analytical_approx(arg, c0, c1, c2, c3, c4, c5):
-#        return c0 + c1*arg - c2 * np.exp(-c3 * arg)
-#         return c0 + c1*arg + c2 * np.log(c3 * arg) - c4 * np.exp(-c5 * arg)
-#    def analytical_approx2(arg, c0, c1, c2, c3):
-#        return c0 + c1*arg - c2 * np.exp(-c3 * arg)
 
     # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - #
+    # first i frequencies
     i = 50
     chi = (Delta_new[i]*frequencies[i])
     
@@ -392,11 +379,6 @@ def new_delta(mix_par):
     def analytical_approx_im(arg, c0, c1, c3, c5):
         return c0 - c1/arg - c3/(arg**3) + c5/(arg**5)
 
-#    def analytical_approx_cmplx(arg, c0, c1, c2, c3, c4):
-#        return c0 - 1j * c1/arg - c2/(arg**2) + 1j * c3/(arg**3) + c4/(arg**4)
-        
-    # first i frequencies
-    
     # real part
     c_start = [Delta_new.real[0], chi.real, chi.real, chi.real]
     c, cov = curve_fit(analytical_approx_re, frequencies.imag[:i], Delta_new.real[:i], c_start, maxfev = 500000)
@@ -408,12 +390,6 @@ def new_delta(mix_par):
     g, cov = curve_fit(analytical_approx_im, frequencies.imag[:i], Delta_new.imag[:i], g_start, maxfev = 500000)
     print(g)
     Delta_new.imag = analytical_approx_im(frequencies.imag, g[0], g[1], g[2], g[3])
-#    Delta_new = analytical_approx_cmplx(frequencies, c[0]+ 1j*g[0], g[1], c[1], g[2], c[2])
-    # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - #
-#    f_start = [Delta_new[0], chi.real, chi.real, chi.real, chi.real, chi.real, chi.real]
-#    f, cov = curve_fit(residuals3_2, frequencies[:i], Delta_new.imag[:i], f_start, maxfev = 500000)
-#    Delta_new = analytical_approx_cmplx(frequencies.imag, f[0], f[1], f[2], f[3], f[4], f[5], f[6])
-
     # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - #
     
     filename = 'Delta_new_extrapolation.dat'
@@ -512,7 +488,10 @@ def rename_files(number_of_iteration, type_of_calc):
     os.remove("Delta.dat")
     
     # Delta_new.dat -> Delta.dat
-    shutil.copy("Delta_new.dat", "Delta.dat")
+    # or Delta_new_extrapolation.dat -> Delta.dat
+    # shutil.copy("Delta_new.dat", "Delta.dat")
+    shutil.copy("Delta_new_extrapolation.dat", "Delta.dat")
+    
 
     if (type_of_calc == "edmft"):
         # Phi.dat   -> Phi_iteration.dat
