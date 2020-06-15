@@ -24,7 +24,7 @@ import set_parameters
 
 server          = False
 num_omp_threads = 1
-type_of_calc    = "dmft"
+type_of_calc    = "edmft"
 
 #############################################
 #                                           #
@@ -45,6 +45,7 @@ else:
 lattice_type, beta, U, hartree_shift, Nk, num_of_neighbours, t, Coulomb, mu, particle_hole_symm = \
     set_parameters.set_model_parameters()
 
+
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 #                                                             #
 #    C T - H Y B    S E G M E N T   C A L C U L A T I O N     #
@@ -55,14 +56,14 @@ lattice_type, beta, U, hartree_shift, Nk, num_of_neighbours, t, Coulomb, mu, par
 number_of_fermionic_freqs               = 1024
 number_of_fermionic_freqs_for_fourier   = 512   # Because of noise we cut the tail of Delta (fermionic hybr. function)
 # off and make a Fouriet transform into the \tau - space by the first frequencies with smooth data.
-number_of_bosonic_frequencies           = 64
+number_of_bosonic_frequencies           = 1024
 number_of_discrete_tau_points           = 4096  # Friedrich - 4096
 
 
-number_of_iterations = 3
+number_of_iterations = 1
 start_time = time.time()
 
-for iteration in range(1, number_of_iterations, 1):
+for iteration in range(0, number_of_iterations, 1):
     print (" ")
     print ("++++++++++++++++++++++++++")
     print ("ITERATION NUMBER ", str(iteration))
@@ -81,18 +82,11 @@ for iteration in range(1, number_of_iterations, 1):
     #               2. Lambda(w) -> Lambda(\tau)           #
     #------------------------------------------------------#
     if(type_of_calc != "dmft"):
-        if iteration == 0:
-            # Firstly constructed file will have no noise.
-            lambda_file_name = 'Phi.dat'
-        else:
-            # Use file with reduced noise after other iterations.
-            lambda_file_name = "Lambda_new_smooth.dat"
-            tmp.check_lambda_file_exist(lambda_file_name)
-
+        lambda_file_name = 'Phi.dat'
         retarded_function.compute_function(number_of_bosonic_frequencies, number_of_discrete_tau_points, beta, lambda_file_name)
 
         file = 'K_tau.dat'
-        check_ktau_file_exists('K_tau.dat')
+        tmp.check_ktau_file_exists('K_tau.dat')
     else:
         print ("DMFT Calculation --> we don't constract Phi.dat and K_tau.dat files.")
 
@@ -118,7 +112,7 @@ for iteration in range(1, number_of_iterations, 1):
     #                 4. New Delta function                 #
     #-------------------------------------------------------#
     # 1. Gloc
-    iteration_cycle.Gloc(mu, Nk, t, lattice_type, beta, U)
+    iteration_cycle.Gloc(mu, Nk, t, lattice_type, U)
     # 2. Delta
     mixing_parameter = 0.25
     iteration_cycle.new_delta(mixing_parameter)
@@ -127,8 +121,12 @@ for iteration in range(1, number_of_iterations, 1):
     #               5. New Lambda function                  #
     #-------------------------------------------------------#
     if (type_of_calc == "edmft"):
+        # 1. Xloc
         interaction = Coulomb
-        iteration_cycle.new_lambda(beta, interaction, Nk, lattice_type)
+        iteration_cycle.X_loc(beta, interaction, Nk, lattice_type)
+        # 2. Lambda
+        mixing_parameter = 0.25
+        iteration_cycle.new_lambda(mixing_parameter)
     else:
         print("New Lambda function is not calculated.")
 
@@ -139,14 +137,20 @@ for iteration in range(1, number_of_iterations, 1):
     os.system("mv plot.pdf plot_{}.pdf".format(str(iteration)))
 
     #-------------------------------------------------------#
-    #             7. rename files for new_iteration         #
+    #             7. Copy the results into folder           #
     #-------------------------------------------------------#
-    iteration_cycle.rename_files(iteration, type_of_calc)
+    tmp.create_dir_with_files(type_of_calc,iteration)
 
     #-------------------------------------------------------#
-    #             8. Copy the results into folder           #
+    #             8. rename files for new_iteration         #
     #-------------------------------------------------------#
-    tmp.create_dir_with_files(type_of_calc)
+#    iteration_cycle.rename_files(str(iteration), type_of_calc)
+
+    #-------------------------------------------------------#
+    #             9. rename files for new_iteration         #
+    #-------------------------------------------------------#
+    tmp.prepare_files_for_new_it(type_of_calc, create_dir_with_files)
+
 
     print("Time for one iteration {} min".format(np.round((time.time() - start_time)/60),2))
         

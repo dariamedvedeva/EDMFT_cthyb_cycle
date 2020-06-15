@@ -23,7 +23,7 @@ def check_ktau_file_exists(file):
         ". The CT-HYB needs Delta_tau.dat and K_tau.dat to run EDMFT.")                         #
         sys.exit()
 
-def create_dir_with_files(type_of_calc):
+def create_dir_with_files(type_of_calc, iteration):
     folder = "results_iteration_" + str(iteration)
     os.system("mkdir " + folder)
     os.system("cp ./*.dat " + folder )
@@ -34,8 +34,16 @@ def create_dir_with_files(type_of_calc):
     os.system("rm -fr *.pdf")
     os.system("rm -fr *.h5")
     os.system("rm params")
+#    if(type_of_calc == "edmft"):
+#        os.system("cp " + folder + "/Phi.dat .")
+#        #   os.system("cp " + folder + "/Lambda.dat")
+#        os.system("cp " + folder + "/Lambda_new_smooth.dat .")
+#        os.system("cp " + folder + "/Delta.dat .")
+
+def prepare_files_for_new_it(type_of_calc, iteration):
+    folder = "results_iteration_" + str(iteration)
+#    os.system("cp " + folder + "/Delta_new.dat .")
+    os.system("cp " + folder + "/Delta_new_extrapolation.dat Delta.dat")
+    
     if(type_of_calc == "edmft"):
-        os.system("cp " + folder + "/Phi.dat .")
-        #   os.system("cp " + folder + "/Lambda.dat")
-        os.system("cp " + folder + "/Lambda_new_smooth.dat .")
-        os.system("cp " + folder + "/Delta.dat .")
+        os.system("cp " + folder + "/Lambda_new_smooth.dat Phi.dat")

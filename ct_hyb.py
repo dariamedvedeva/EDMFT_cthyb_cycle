@@ -56,7 +56,7 @@ def run_ct_hyb(path, num_omp_threads, num_mpi_threads, beta, U, mu, N_W, N, numb
     arg.append(str('--NMATSUBARA'))   	    # number of matsubara coefficients
     arg.append(str(number_of_fermionic_freqs))
     arg.append('--Tmax')              	    # maximum time to check if simulation has finished
-    arg.append(str(7500))
+    arg.append(str(600))
     arg.append('--cthyb.J')            	    # Hund
     arg.append(str(0.0))
     arg.append('--cthyb.DELTA_IN_HDF5') 	# true if hybridization function file is in hdf5 format
@@ -69,13 +69,13 @@ def run_ct_hyb(path, num_omp_threads, num_mpi_threads, beta, U, mu, N_W, N, numb
     arg.append(str(N_W))
     arg.append('--cthyb.K_IN_HDF5')           # set to true if retarded interaction K is stored in hdf5
     arg.append(str(0))
-#    arg.append(str('--cthyb.RET_INT_K'))    # file with the retarted interaction information. See doc for format.
-#    arg.append("K_tau.dat")
+    arg.append(str('--cthyb.RET_INT_K'))    # file with the retarted interaction information. See doc for format.
+    arg.append("K_tau.dat")
     
 # parameters of data
     arg.append('--cthyb.MEASURE_freq') 	    # measure in frequency domain
     arg.append(str(1))
-    arg.append('--cthyb.MEASURE_nnw')  	    # measure density-density correlation functions in frequency domain (susceptibility NN)
+    arg.append('--cthyb.MEASURE_nnw')  	    # meaure density-density correlation functions in frequency domain (susceptibility NN)
     arg.append(str(1))
     arg.append('--cthyb.TEXT_OUTPUT')
     arg.append('1')

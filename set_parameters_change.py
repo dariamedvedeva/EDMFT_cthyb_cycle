@@ -39,9 +39,9 @@ def set_model_parameters():
         t[2] =  0.0151
 
         Coulomb     = np.empty(num_of_neighbours, dtype=np.float)
-        Coulomb[0]  = 0.6368
-        Coulomb[1]  = 0.4733
-        Coulomb[2]  = 0.4386
+        Coulomb[0]  = 0.0
+        Coulomb[1]  = 0.0
+        Coulomb[2]  = 0.0
         
 #        mu =  0.8 * t[0]
         mu = 0.0

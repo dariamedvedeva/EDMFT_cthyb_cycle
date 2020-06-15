@@ -25,7 +25,7 @@ from scipy import integrate
 
 server          = False
 num_omp_threads = 1
-type_of_calc    = "dmft"
+type_of_calc    = "edmft"
 
 #############################################
 #                                           #
@@ -56,7 +56,7 @@ lattice_type, beta, U, hartree_shift, Nk, num_of_neighbours, t, Coulomb, mu, par
 number_of_fermionic_freqs               = 1024
 number_of_fermionic_freqs_for_fourier   = 512   # Because of noise we cut the tail of Delta (fermionic hybr. function)
 # off and make a Fouriet transform into the \tau - space by the first frequencies with smooth data.
-number_of_bosonic_frequencies           = 64
+number_of_bosonic_frequencies           = 1024
 number_of_discrete_tau_points           = 4096  # Friedrich - 4096
 
 
@@ -69,15 +69,9 @@ for iteration in range(0, number_of_iterations, 1):
     print ("ITERATION NUMBER ", str(iteration))
     print ("++++++++++++++++++++++++++")
     print (" ")
-
-    
-    print ("++++++++++++++++++++++++++")
-    print ("  > > > MaxEnt < < < ")
-    print ("++++++++++++++++++++++++++")
-    print (" ")
     
 #    # 1. Gloc
-    iteration_cycle.Gloc(mu, Nk, t, lattice_type, beta, U)
+#    iteration_cycle.Gloc(mu, Nk, t, lattice_type, beta, U)
 #
 #    # 2. maxent Gloc(iw) -> Gloc(w)
 #    filename_for_maxent = 'Gloc_for_maxent.dat'
@@ -169,15 +163,18 @@ for iteration in range(0, number_of_iterations, 1):
     #-------------------------------------------------------#
     #                 4. New Delta function                 #
     #-------------------------------------------------------#
-    mixing_parameter = 0.25
-    iteration_cycle.new_delta(mixing_parameter)
+#    iteration_cycle.Gloc(mu, Nk, t, lattice_type, U)
+#    mixing_parameter = 0.25
+#    iteration_cycle.new_delta(mixing_parameter)
     
     #-------------------------------------------------------#
     #               5. New Lambda function                  #
     #-------------------------------------------------------#
     if (type_of_calc == "edmft"):
         interaction = Coulomb
-        iteration_cycle.new_lambda(beta, interaction, Nk, lattice_type)
+        iteration_cycle.X_loc(beta, interaction, Nk, lattice_type)
+        mixing_parameter = 0.25
+        iteration_cycle.new_lambda(mixing_parameter)
     else:
         print("New Lambda function is not calculated.")
 
@@ -195,7 +192,7 @@ for iteration in range(0, number_of_iterations, 1):
     #-------------------------------------------------------#
     #             6. Copy the results into folder           #
     #-------------------------------------------------------#
-#    tmp.create_dir_with_files(type_of_calc)
+#    tmp.create_dir_with_files(type_of_calc, iteration)
 
 
     print("Time for one iteration {} min".format(np.round((time.time() - start_time)/60),2))

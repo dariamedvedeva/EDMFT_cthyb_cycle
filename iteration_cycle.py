@@ -9,6 +9,7 @@ import smooth_function
 from scipy.interpolate import UnivariateSpline
 from pylab import *
 from scipy.optimize import curve_fit
+import delta_min
 
 global sqrt32, sqrt3
 sqrt32 = np.sqrt(3.)/2.
@@ -24,6 +25,13 @@ def get_num_of_tr_points():
     return triang_points
 
 def read_G_imp_frequencies(filename):
+    # read file
+    D = np.loadtxt(filename)
+    frequencies = 1.j*D[:,0]
+    function = D[:,1] + 1j * D[:,2]
+    return frequencies, function
+    
+def read_freq_function(filename):
     # read file
     D = np.loadtxt(filename)
     frequencies = 1.j*D[:,0]
@@ -68,44 +76,6 @@ def read_correlator_file(filename):
     nnw_11 = D[:,3]
     return freq, nnw_00, nnw_10, nnw_11
 
-def ro():
-    f = h5py.File("sim.h5",'r+')
-    # h5ls sim.h5/simulation/results/density_0
-    # List all groups
-    #print("Keys: %s" % f.keys())
-    #a_group_key = list(f.keys())[0]
-
-    # Get the data
-    #list
-    #[u'count', u'mean', u'tau', u'timeseries', u'error_bins']
-    density_0 = f['simulation/results/density_0/mean/value'][()]
-    density_1 = f['simulation/results/density_1/mean/value'][()]
-    print (density_0, density_1)
-    charge_density  = density_0 + density_1
-    spin_density    = density_0 - density_1
-    return charge_density, spin_density
-
-def bosonic_frequencies(number_of_freqs, beta):
-    freqs_array = []
-    for i in range(number_of_freqs):
-        freqs_array.append(0.0 + (2. * i * np.pi / beta) * 1j)
-    return freqs_array
-
-def susceptibility(correlator_filename, beta):
-    freq, nn_00, nn_10, nn_11 = read_correlator_file(correlator_filename)
-    #chiw_charge = (nn_00 + nn_10) * 2.0
-    #chiw_spin  = (nn_00 - nn_10) * 2.0
-    chiw_charge = nn_00 + 2. * nn_10 + nn_11
-    chiw_spin 	= nn_00 - 2. * nn_10 + nn_11
-    np.savetxt("X_not_0.dat", np.column_stack((freq.imag, chiw_charge, chiw_spin)))
-    charge_density, spin_density = ro()
-    chiw_charge[0]  -= beta * charge_density * charge_density
-    chiw_spin[0]    -= beta * spin_density * spin_density
-    # bosonic_freq = bosonic_frequencies(len(chiw_charge), beta)
-    chiw_charge_ = -chiw_charge + 0.0 * 1j
-    chiw_spin_   = -chiw_spin   + 0.0 * 1j
-    np.savetxt("Xw.dat", np.column_stack((freq.imag, chiw_charge_.real, chiw_charge_.imag, chiw_spin_.real, chiw_spin_.imag)))
-    return freq, chiw_charge_, chiw_spin_
 
 #def delta_from_sigma(mu, Nk, t, lattice_type):
 #    global sqrt32, sqrt3
@@ -170,7 +140,7 @@ def compute_numerical_derivative(x, y):
 def calculate_b_vectors(a1, a2, a3):
     
     vol = a1[0]*(a2[1]*a3[2]-a2[2]*a3[1])- a1[1]*(a2[0]*a3[2]-a3[0]*a2[2]) + a1[2]*(a2[0]*a3[1]-a2[1]*a3[0])
-    print("vol = ", vol)
+#    print("vol = ", vol)
     
     tpi = 2.0 * np.pi
     b1 = [0.0, 0.0, 0.0]
@@ -220,13 +190,13 @@ def get_kstep(lattice_type, Nk):
         # kstep_x = b1[0] / (Nk - 1)
         # kstep_y = b2[1] / (Nk - 1)
         # kstep_z = b3[2] / (Nk - 1)
-        print("kstep_x = " , str(kstep_x), "\nkstep_y = " , str(kstep_y))
+#        print("kstep_x = " , str(kstep_x), "\nkstep_y = " , str(kstep_y))
               
     if lattice_type == 'triangular':
         # compute step in the grid
         kstep_x = 2. * (4.0 * np.pi / 3. )/ (Nk - 1)
         kstep_y = (2. * (2. * np.pi / sqrt3)) / (Nk - 1)
-        print("kstep_x = " , str(kstep_x), "\nkstep_y = " , str(kstep_y))
+#        print("kstep_x = " , str(kstep_x), "\nkstep_y = " , str(kstep_y))
     return kstep_x, kstep_y
 
 def interaction_dispersion(filename, Nk, lattice_type, param):
@@ -294,14 +264,13 @@ def interaction_dispersion(filename, Nk, lattice_type, param):
     set_num_of_tr_points(m)
     return interaction, kpoints_coordinates
      
-def Gloc(mu, Nk, t, lattice_type, beta, U):
+def Gloc(mu, Nk, t, lattice_type, U):
    
     global sqrt32, sqrt3
     frequencies, G_imp_omega = read_G_imp_frequencies("Gw.dat")
     Delta = read_function("Delta.dat")
     Sigma = read_function("Sw.dat")
-    print(Sigma)
-    
+#    print(Sigma)
     
 #    if (Sigma[1].imag - Sigma[0].imag > 0.0):
 #        metal = True
@@ -352,23 +321,28 @@ def Gloc(mu, Nk, t, lattice_type, beta, U):
 #    */
     
 def new_delta(mix_par):
-    filename = "Delta_new.dat"
+    filename = 'Delta_new.dat'
     print ("**Compute new delta function (write in file {}).".format(filename))
 
-    frequencies, G_imp_omega = read_G_imp_frequencies("Gw.dat")
+    frequencies, G_imp_omega = read_G_imp_frequencies('Gw.dat')
 # Tryings to smooth. All of them works
 #    G_imp_omega = smooth_function.smooth_data(frequencies.imag, G_imp_omega, 400, "G_imp_omega")
 #    G_imp_omega = smooth_function.reduce_noise(frequencies, G_imp_omega, 15, "Gw_smooth")
-    Delta = read_function("Delta.dat")
-    G_loc = read_function("G_loc.dat")
+    Delta = read_function('Delta.dat')
+    G_loc = read_function('G_loc.dat')
     
     print("Mixing:")
-    print('{} of old Delta and {} of new Delta'.format(int((1.0 - mix_par) * 100),  int(mix_par * 100)))
+    print("{} of old Delta and {} of new Delta".format(int((1.0 - mix_par) * 100),  int(mix_par * 100)))
     intermixed_part = (1. / G_imp_omega - 1. / G_loc)
     Delta_new = (1.0 - mix_par) * Delta + mix_par * intermixed_part
     np.savetxt(filename, np.column_stack((frequencies.imag, Delta_new.real, Delta_new.imag)))
 
+    print("\n+ + + + + + + + + + + + + + + + + + ")
+    print("+  Reduce noise in Delta function +")
+    print("+ + + + + + + + + + + + + + + + + + \n")
     # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - #
+    # crutches && bicycles
+    print(" >> crutches && bicycles var.")
     # first i frequencies
     i = 50
     chi = (Delta_new[i]*frequencies[i])
@@ -377,7 +351,8 @@ def new_delta(mix_par):
         return c0 - c2/(arg**2) + c4/(arg**4) + c6/(arg**6)
 
     def analytical_approx_im(arg, c0, c1, c3, c5):
-        return c0 - c1/arg - c3/(arg**3) + c5/(arg**5)
+#        return c0 - c1/arg - c3/(arg**3) + c5/(arg**5)
+        return c0 - c1/arg + c3/(arg**3) + c5/(arg**5)
 
     # real part
     c_start = [Delta_new.real[0], chi.real, chi.real, chi.real]
@@ -390,10 +365,65 @@ def new_delta(mix_par):
     g, cov = curve_fit(analytical_approx_im, frequencies.imag[:i], Delta_new.imag[:i], g_start, maxfev = 500000)
     print(g)
     Delta_new.imag = analytical_approx_im(frequencies.imag, g[0], g[1], g[2], g[3])
-    # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - #
     
     filename = 'Delta_new_extrapolation.dat'
     np.savetxt(filename, np.column_stack((frequencies.imag, Delta_new.real, Delta_new.imag)))
+    print("Reconstructed function was saved in file " + filename + ".\n" )
+    # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - #
+#    # high frequency decomposition
+#    print(" >> high frequency decomposition")
+#    # first i frequencies
+#    num_of_used_freqs = 50
+#    bath_size = 5
+#    filename_t2g = 'Delta_new.dat'
+#    D = delta_min.DeltaMin(filename_t2g, bath_size, num_of_used_freqs)
+#    coeffs = D.minimize3("delta") # coeffs[E ... , V ...]
+#    coeffs[bath_size : bath_size *2] = abs(coeffs[bath_size : bath_size *2])
+#    print("Result values:")
+#    print(*np.around(coeffs, decimals=3), sep = ",")
+#
+#    def high_freq_decomp(E, V, bath_size, freq):
+#        # for 5 poles
+#        func = np.zeros(len(freq), np.complex64)
+#        D = []
+#        for i in range(bath_size):
+#            D.append(V[i]**2)
+#        j = 0
+#        D_I = D_II = D_III = D_IV = 0.0
+#        for i in range(bath_size):
+#            D_I   += D[i]
+#            D_II  -= D[i] * E[i]
+#            D_III += D[i] * E[i]**2
+#            D_IV  += D[i] * E[i]**3
+#        for w in freq:
+#            func[j] -= 1j * (D_I) * 1/w
+#            func[j] += D_II * (1/w)**2
+#            func[j] += 1j * D_III * (1/w)**3
+#            func[j] += D_IV * (1/w)**4
+#            j += 1
+#        return func
+#
+#    decomposition = high_freq_decomp(coeffs[:bath_size], coeffs[bath_size:bath_size*2], bath_size, frequencies.imag)
+#    filename = 'Delta_new_decomposition.dat'
+#    np.savetxt(filename, np.column_stack((frequencies.imag, decomposition.real, decomposition.imag, )))
+#    print("Decomposed function was saved in file " + filename + ".\n" )
+    # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - #
+    # minimization
+    print(" >> minimization")
+    num_of_used_freqs = 50
+    bath_size = 7
+    filename = 'Delta_new.dat'
+    D2 = delta_min.DeltaMin(filename, bath_size, num_of_used_freqs)
+    coeffs2 = D2.minimize3("delta") # coeffs[E ... , V ...]
+    coeffs2[bath_size : bath_size *2] = abs(coeffs2[bath_size : bath_size *2])
+    print("Result values:")
+    print(*np.around(coeffs2, decimals=3), sep = ",")
+    
+    minimized_function  = D2.delta_model(frequencies.imag, coeffs2)
+    filename = 'Delta_new_minimized.dat'
+    np.savetxt(filename, np.column_stack((frequencies.imag, minimized_function.real, minimized_function.imag)))
+    print("Decomposed function was saved in file " + filename + ".\n" )
+    # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - #
     return 0
 
 def corrections(iw, mu, Delta_omega, Sigma_omega, beta, U):
@@ -411,40 +441,82 @@ def corrections(iw, mu, Delta_omega, Sigma_omega, beta, U):
         g_tau_0 += g_omega_minus_analytical_part[i] / beta
     print ('g (tau = 0) =', g_tau_0)
 
-def new_lambda(beta, interaction, Nk, lattice_type):
-    
-    print ("Construct new lambda function")
-    
+def ro():
+    f = h5py.File("sim.h5",'r+')
+    # h5ls sim.h5/simulation/results/density_0
+    # List all groups
+    #print("Keys: %s" % f.keys())
+    #a_group_key = list(f.keys())[0]
+
+    # Get the data
+    #list
+    #[u'count', u'mean', u'tau', u'timeseries', u'error_bins']
+    density_0 = f['simulation/results/density_0/mean/value'][()]
+    density_1 = f['simulation/results/density_1/mean/value'][()]
+#    print (density_0, density_1)
+    charge_density  = density_0 + density_1
+    spin_density    = density_0 - density_1
+    return charge_density, spin_density
+
+def bosonic_frequencies(number_of_freqs, beta):
+    freqs_array = []
+    for i in range(number_of_freqs):
+        freqs_array.append(0.0 + (2. * i * np.pi / beta) * 1j)
+    return freqs_array
+
+def susceptibility(correlator_filename, beta):
+    freq, nn_00, nn_10, nn_11 = read_correlator_file(correlator_filename)
+    #chiw_charge = (nn_00 + nn_10) * 2.0
+    #chiw_spin  = (nn_00 - nn_10) * 2.0
+    chiw_charge = nn_00 + 2. * nn_10 + nn_11
+    chiw_spin     = nn_00 - 2. * nn_10 + nn_11
+ #   np.savetxt("X_not_0.dat", np.column_stack((freq.imag, chiw_charge, chiw_spin)))
+    charge_density, spin_density = ro()
+#    print(type(beta), type(charge_density))
+    chiw_charge[0] -= beta * charge_density * charge_density
+    chiw_spin[0]   -= beta * spin_density * spin_density
+    # bosonic_freq = bosonic_frequencies(len(chiw_charge), beta)
+    chiw_charge_ = -chiw_charge + 0.0 * 1j
+    chiw_spin_   = -chiw_spin   + 0.0 * 1j
+    np.savetxt("Xw.dat", np.column_stack((freq.imag, chiw_charge_.real, chiw_charge_.imag, chiw_spin_.real, chiw_spin_.imag)))
+    return freq, chiw_charge_, chiw_spin_
+
+
+def X_loc(beta, interaction, Nk, lattice_type):
     global sqrt32, sqrt3
-    mix_par = 0.75
-    print("mix_par = ", str(mix_par))
     
     # read
-    Sigma = read_function("Sw.dat")
-    Lambda = read_function("Phi.dat")
     frequencies, X_charge, X_spin = susceptibility("nnw.dat", beta)
-    lambda_charge, lambda_spin = read_2_functions_in_file("Phi.dat")
     
     # init arrays for local quantities
-    X_charge_loc        = np.zeros(Lambda.shape, dtype=np.complex64)
-    Lambda_new          = np.zeros(Lambda.shape, dtype=np.complex64)
-    Lambda_spin_new     = np.zeros(Lambda.shape, dtype=np.complex64)
     
-    print ("**Compute local 2PGF")
-    print(interaction)
+    lambda_charge, lambda_spin = read_2_functions_in_file("Phi.dat")
+    X_charge_loc    = np.zeros(X_charge.shape, dtype=np.complex64)
+      
+#    print ("**Compute local 2PGF")
     V_k, kpoints_coordinates = interaction_dispersion("V_k", Nk, lattice_type, interaction)
-   
-    for i in range(V_k.__len__()):
-        X_charge_loc += 1.0/ (1.0 / X_charge + lambda_charge - V_k[i])
-    X_charge_loc /= Nk ** 2
+    for j in range(X_charge_loc.__len__()):
+        for i in range(get_num_of_tr_points()):
+#            X_charge_loc[j] += 1.0/ (1.0 / X_charge[j] + lambda_charge[j] - V_k[i])
+            X_charge_loc[j] += 1.0 / (lambda_charge[j] - V_k[i] )
+    X_charge_loc /= get_num_of_tr_points()
     
     np.savetxt("X_loc.dat", np.column_stack((frequencies.imag, X_charge_loc.real, X_charge_loc.imag)))
     print("File X_loc.dat is constructed.\n")
     
-    #####################
-    # Check the phase
-    #####################
     
+def new_lambda(mix_par):
+    Sigma        = read_function("Sw.dat")
+    Lambda       = read_function("Phi.dat")
+    frequencies, X_charge     = read_freq_function("Xw.dat")
+    X_charge_loc = read_function("X_loc.dat")
+        
+    Lambda_new      = np.zeros(X_charge_loc.shape, dtype=np.complex64)
+    Lambda_spin_new = np.zeros(X_charge_loc.shape, dtype=np.complex64)
+    
+    print(X_charge_loc.__len__(), X_charge.__len__(), Lambda.__len__())
+    
+    # Check the phase
     if ((Sigma[0] - Sigma[1]) > 0.0):
         metal = True
         print ("Impurity is in the metal phase")
@@ -455,24 +527,25 @@ def new_lambda(beta, interaction, Nk, lattice_type):
         print( "No interaction. Sigma == 0.0" )
     else:
         print ("WTF with your Sigma? (New Lambda)")
-
-    #########################################################################################################
-    #                                               New Lambda
-    #########################################################################################################
     
-    if (metal):
-        # In metallic regimes a fast convergence at low energies is more important
-        intermixed_part = (X_charge - X_charge_loc)
-    else:
-        # Mainly convergency is at high frequencies
-        intermixed_part = (1. / X_charge - 1. / X_charge_loc)
+    # New Lambda
+#    if (metal):
+#        # In metallic regimes a fast convergence at low energies is more important
+#        intermixed_part = (X_charge - X_charge_loc)
+#    else:
+#        # Mainly convergency is at high frequencies
+#        intermixed_part = (1. / X_charge - 1. / X_charge_loc)
 
-    Lambda_new = Lambda + mix_par * intermixed_part
+    intermixed_part = (1. / X_charge - 1. / X_charge_loc)
+    
+    for j in range(X_charge.__len__()):
+        Lambda_new[j] = Lambda[j] + mix_par * intermixed_part[j]
 
     np.savetxt("Lambda_new.dat", np.column_stack((frequencies.imag, Lambda_new.real, Lambda_new.imag, Lambda_spin_new.real, Lambda_spin_new.imag)))
 
     Lambda_new_smooth = np.zeros(Lambda_new.shape, np.complex)
-    Lambda_new_smooth = smooth_function.smooth_data(frequencies.imag, Lambda_new, 10000, "Lambda_new_smooth")
+    num_of_points = 100
+    Lambda_new_smooth = smooth_function.smooth_data(frequencies.imag, Lambda_new, num_of_points, "Lambda_new_smooth")
 
     print (Lambda_new_smooth[0])
     np.savetxt("Lambda_new_smooth.dat", np.column_stack(
@@ -480,21 +553,20 @@ def new_lambda(beta, interaction, Nk, lattice_type):
 
 
 def rename_files(number_of_iteration, type_of_calc):
-    
     print ("Rename files.")
     
-    # Delta.dat     -> Delta_iteration.dat
+#    print(" Delta.dat \t -> \t Delta_iteration.dat " )
     shutil.copy("Delta.dat", "Delta_" + str(number_of_iteration) + ".dat")
     os.remove("Delta.dat")
     
     # Delta_new.dat -> Delta.dat
-    # or Delta_new_extrapolation.dat -> Delta.dat
+#    print("Delta_new_extrapolation.dat \t -> \t Delta.dat ")
     # shutil.copy("Delta_new.dat", "Delta.dat")
     shutil.copy("Delta_new_extrapolation.dat", "Delta.dat")
     
 
     if (type_of_calc == "edmft"):
-        # Phi.dat   -> Phi_iteration.dat
+#        print ("Phi.dat \t -> \t Phi_iteration.dat ")
         shutil.copy("Phi.dat", "Phi_" + str(number_of_iteration) + ".dat")
         os.remove("Phi.dat")
     
