@@ -1,3 +1,9 @@
+# # # # # # # # # # # # # # # # # # # # # # # #
+#         Medvedeva D.S. 2018 - 2020          #
+#                                             #
+#               Smooth function               #
+# # # # # # # # # # # # # # # # # # # # # # # #
+
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.signal import butter, filtfilt
@@ -31,8 +37,6 @@ def reduce_noise(x, y, n, filename_to_save):
     a = 1
 #    n = 15
     b = [1.0 / n] * n
-#    y_filtred_real = lfilter(b,a,y.real)
-#    y_filtred_imag = lfilter(b,a,y.imag)
     y_filtred_real = filtfilt(b,a,y.real)
     y_filtred_imag = filtfilt(b,a,y.imag)
     np.savetxt(filename_to_save + ".dat", np.column_stack((x.imag, y_filtred_real.real, y_filtred_imag.real)))

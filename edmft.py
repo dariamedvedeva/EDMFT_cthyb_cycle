@@ -1,5 +1,9 @@
-#!/opt/intel/intelpython2/bin/python
-# edmft.py
+# # # # # # # # # # # # # # # # # # # # # # # #
+#         Medvedeva D.S. 2018 - 2020          #
+# For questions: medvedeva.ds@gmail.com       #
+# Skype: daryacooper                          #
+# # # # # # # # # # # # # # # # # # # # # # # #
+
 import iteration_cycle
 import discrete_fourier
 import retarded_function
@@ -22,13 +26,15 @@ import set_parameters
 #                                           #
 #############################################
 
+# You can preset 2 ways to execute: for local execution and on server.
 server          = False
 num_omp_threads = 1
 type_of_calc    = "edmft"
 
 #############################################
 #                                           #
-#               PATHES IF .exe              #
+#                  PATHES                   #
+#            >  See pathes.py  <            #
 #                                           #
 #############################################
 
@@ -37,11 +43,15 @@ if server:
 else:
     path_to_exec_file, num_mpi_threads, path_to_maxent = pathes.get_local_run()
 
-#############################################
-#                                           #
-#        SPECIFICATION OF A MODEL           #
-#                                           #
-#############################################
+#################################################
+#                                               #
+#        SPECIFICATION OF A MODEL               #
+#                                               #
+# (1) Copy the file set_parameters_change.py    #
+# (2) Change the name as set_parameters.py      #
+# (3) Set parameters                            #
+#                                               #
+#################################################
 lattice_type, beta, U, hartree_shift, Nk, num_of_neighbours, t, Coulomb, mu, particle_hole_symm = \
     set_parameters.set_model_parameters()
 
@@ -54,7 +64,7 @@ lattice_type, beta, U, hartree_shift, Nk, num_of_neighbours, t, Coulomb, mu, par
 
 # run CT-HYB SEGMENT solver
 number_of_fermionic_freqs               = 1024
-number_of_fermionic_freqs_for_fourier   = 512   # Because of noise we cut the tail of Delta (fermionic hybr. function)
+number_of_fermionic_freqs_for_fourier   = 1024   # Because of noise we cut the tail of Delta (fermionic hybr. function)
 # off and make a Fouriet transform into the \tau - space by the first frequencies with smooth data.
 number_of_bosonic_frequencies           = 1024
 number_of_discrete_tau_points           = 4096  # Friedrich - 4096
@@ -143,11 +153,6 @@ for iteration in range(0, number_of_iterations, 1):
 
     #-------------------------------------------------------#
     #             8. rename files for new_iteration         #
-    #-------------------------------------------------------#
-#    iteration_cycle.rename_files(str(iteration), type_of_calc)
-
-    #-------------------------------------------------------#
-    #             9. rename files for new_iteration         #
     #-------------------------------------------------------#
     tmp.prepare_files_for_new_it(type_of_calc, create_dir_with_files)
 

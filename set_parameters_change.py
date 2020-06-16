@@ -1,3 +1,19 @@
+# # # # # # # # # # # # # # # # # # # # # # # #
+#         Medvedeva D.S. 2018 - 2020          #
+# For questions: medvedeva.ds@gmail.com       #
+# Skype: daryacooper                          #
+# # # # # # # # # # # # # # # # # # # # # # # #
+
+#################################################
+#                                               #
+#        SPECIFICATION OF A MODEL               #
+#                                               #
+# (1) Copy the file set_parameters_change.py    #
+# (2) Change the name as set_parameters.py      #
+# (3) Set parameters                            #
+#                                               #
+#################################################
+
 import numpy as np
 #############################################
 #                                           #
@@ -6,30 +22,36 @@ import numpy as np
 #############################################
 def set_model_parameters():
     lattice_type        = 'triangular' # write square || triangular
-    beta                = 50.     # inversive temperature as \beta = 1./T
-    U                   = 1.0      # local (inter-site) Hubbard repulsion
-    #mu                  = U/2.   # for a half filling U / 2. In case of square lattice it should be mu = U/2. !!!!
-    #mu                  = 0.8 * t
-    hartree_shift       = -0.0      # Hartree shift (\mu in ct-hyb). for a half filling U / 2. In the tutorial it is written
-    # that mu = U/2 isn't implemented, but it is (!!!). Automatically mu = U/2, for half-filling.
-    # The sign problem can occure away from half-filling. Don't touch.
-    Nk                  = 64       # num. of kpoints in each direction, 64 is better for qmc (Friedrich K.)
-    num_of_neighbours   = 3
+    beta                = 50.       # inversive temperature as \beta = 1./T. Kind of estimated temperatures for qmc are in
+                                    # range [0+ .. 100] stable, beta > 100 - unstable behavior of the solver can occur.
+                                    
+    U                   = 1.0       # local (inter-site) Hubbard repulsion
+    
+    hartree_shift       = -0.0      # Hartree shift (dctype = double counting = ... = \mu in ct-hyb)
+                                    # for a half filling U / 2. In the tutorial it is written
+                                    # that mu = U/2 isn't implemented, but it is (!!!). Automatically mu = U/2 for
+                                    # half-filling. The sign problem can occure away from half-filling. Don't touch.
+                                    
+    Nk                  = 64        # number of kpoints in each direction, 64 is better for qmc (Friedrich K.)
+    num_of_neighbours   = 3         # It is better to save it like this and use 0.0 values for the neighbours of the
+                                    # larger order.
 
     #############################################
     #                                           #
     #      STATIC PARAMETERS OF A MODEL         #
     #                                           #
     #############################################
-    # t         - value of a hopping integral
+    # t         - value of the hopping integrals.
+    
     # Coulomb   - value of non-local (intra-site) Coulomb interaction.
     # In papers it figurates as V.
 
     if lattice_type == 'square':
+        # for square lattice everything is easier
         t       = -0.25
         Coulomb = 0.5
         mu = U / 2.
-        particle_hole_symm  = 1
+        particle_hole_symm  = 1     # Because the lattice is symmetrical
         
     elif lattice_type == 'triangular':
         t    = np.empty(num_of_neighbours, dtype=np.float)
@@ -42,11 +64,10 @@ def set_model_parameters():
         Coulomb[0]  = 0.0
         Coulomb[1]  = 0.0
         Coulomb[2]  = 0.0
+            
+        mu = 0.0                    # this is the chemical potential (NOT IN THE IMPURITY MODEL)
         
-#        mu =  0.8 * t[0]
-        mu = 0.0
-        
-        particle_hole_symm  = 0
+        particle_hole_symm  = 0     # Because the lattice is frustrated
         
     print ("Lattice type is ", lattice_type)
     print ("5*beta*U/(2pi) ~ ", str(int(5*beta*U/(2.*np.pi))))
@@ -68,12 +89,11 @@ def get_shift_half_filling(dos, Erange, dE):
   NE = len(dos)
   for n in range(NE):
     weight += dos[n]*dE
-#    print (-Erange+n*dE,weight)
     if weight >= 0.5:
       if weight==0.5: Eshift=-Erange+n*dE
       else: Eshift=-Erange+(n-0.5)*dE
       break
-  print ("Energy shift to obtain half-filling: E_shift = %f"%(Eshift))
+  print ("Energy shift to obtain half-filling: E_shift = {}".format(Eshift))
   return Eshift
 
 

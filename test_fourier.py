@@ -1,3 +1,13 @@
+# # # # # # # # # # # # # # # # # # # # # # # #
+#         Medvedeva D.S. 2018 - 2020          #
+# For questions: medvedeva.ds@gmail.com       #
+# Skype: daryacooper                          #
+# # # # # # # # # # # # # # # # # # # # # # # #
+
+#
+# The easiest way to do the fourier transform
+#
+
 import discrete_fourier
 
 # discrete_fourier.compute(100.0, "Delta")

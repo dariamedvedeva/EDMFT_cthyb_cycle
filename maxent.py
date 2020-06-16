@@ -63,15 +63,14 @@ def create_input_file_maxent(beta, data_file_name_for_maxent, num_of_data_points
     file_with_parameters.write("\n")
 
     # Default model for entropy (default value: flat) "Gaussian"
-    file_with_parameters.write("DEFAULT_MODEL=\"double Gaussian\"")
+    file_with_parameters.write("DEFAULT_MODEL=\"double Gaussian\"")     # <== For Susceptibility
+#    file_with_parameters.write("DEFAULT_MODEL=\"Gaussian\"")           # <== For DOS
     file_with_parameters.write("\n")
 
     # stddev - For Gaussian models
     file_with_parameters.write("SIGMA=0.5")
     file_with_parameters.write("\n")
     
-#    file_with_parameters.write("GAMMA=0.5")
-#    file_with_parameters.write("\n")
 
     # shift of a model (default value: 0)
 #    file_with_parameters.write("SHIFT=5.5")
@@ -106,31 +105,19 @@ def create_input_file_maxent(beta, data_file_name_for_maxent, num_of_data_points
     file_with_parameters.close()
 
 def construct_Gw_file_for_maxent(beta, filename):
-    # D = np.loadtxt(filename)
-    #w       = D[:,0]
-    #Re_Gw   = (D[:,1] + D[:,3]) / 2.
-    #Im_Gw   = (D[:,2] + D[:,4]) / 2.
-    
     f = h5py.File("sim.h5",'r')
     
     Re_Gw_0 = f['simulation/results/gw_re_0/mean/value'][()]
     Im_Gw_0 = f['simulation/results/gw_im_0/mean/value'][()]
-    
     Re_Gw_1 = f['simulation/results/gw_re_1/mean/value'][()]
     Im_Gw_1 = f['simulation/results/gw_im_1/mean/value'][()]
-    
-    #Re_Error_0 = f['simulation/results/gw_re_0/mean/error'].value
-    #Im_Error_0 = f['simulation/results/gw_im_0/mean/error'].value
-    
-    #Re_Error_1 = f['simulation/results/gw_re_1/mean/error'].value
-    #Im_Error_1 = f['simulation/results/gw_im_1/mean/error'].value
    
     Re_Error_0 = np.zeros(Re_Gw_0.shape, np.float)
     Im_Error_0 = np.zeros(Re_Gw_0.shape, np.float)
     Re_Error_1 = np.zeros(Re_Gw_0.shape, np.float)
     Im_Error_1 = np.zeros(Re_Gw_0.shape, np.float)
     
-    static_error = 0.01
+    static_error = 0.005
     for i in range(len(Re_Error_0)):
         Re_Error_0[i] = static_error
         Im_Error_0[i] = static_error
@@ -159,7 +146,7 @@ def construct_Gloc_file_for_maxent(input_file, output_file, beta):
     Re_Error = np.zeros(Gloc.shape, np.float)
     Im_Error = np.zeros(Gloc.shape, np.float)
 
-    static_error = 0.01
+    static_error = 0.005
     for i in range(len(Re_Error)):
         Re_Error[i] = static_error
         Im_Error[i] = static_error

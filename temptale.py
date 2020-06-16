@@ -1,3 +1,16 @@
+# # # # # # # # # # # # # # # # # # # # # # # #
+#         Medvedeva D.S. 2018 - 2020          #
+# For questions: medvedeva.ds@gmail.com       #
+# Skype: daryacooper                          #
+# # # # # # # # # # # # # # # # # # # # # # # #
+
+# # # # # # # # # # # # # # # # # # # # # # # #
+#                                             #
+#    F I L E S   P R O C E S S I N G          #
+#                                             #
+# # # # # # # # # # # # # # # # # # # # # # # #
+
+
 import sys
 import os
 
@@ -34,16 +47,9 @@ def create_dir_with_files(type_of_calc, iteration):
     os.system("rm -fr *.pdf")
     os.system("rm -fr *.h5")
     os.system("rm params")
-#    if(type_of_calc == "edmft"):
-#        os.system("cp " + folder + "/Phi.dat .")
-#        #   os.system("cp " + folder + "/Lambda.dat")
-#        os.system("cp " + folder + "/Lambda_new_smooth.dat .")
-#        os.system("cp " + folder + "/Delta.dat .")
 
 def prepare_files_for_new_it(type_of_calc, iteration):
     folder = "results_iteration_" + str(iteration)
-#    os.system("cp " + folder + "/Delta_new.dat .")
-#    os.system("cp " + folder + "/Delta_new_extrapolation.dat Delta.dat")
     os.system("cp " + folder + "/Delta_new_minimized.dat Delta.dat")
     
     if(type_of_calc == "edmft"):

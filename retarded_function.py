@@ -60,8 +60,8 @@ def compute_function(nmats, N, beta, lambda_filename):
         tmp1_sz += data_spin_[0].real*( (tau - beta/2.)**2 - beta**2/4. )/4.
         tmp2_sz += data_spin_[0].real*(tau - beta/2.)/2.
 
-        c_k_tau[t]  = tmp1_c * 2. / beta
-        c_kp_tau[t] = tmp2_c * 2. / beta
+        c_k_tau[t]  = tmp1_c *  2./beta
+        c_kp_tau[t] = tmp2_c *  2./beta
         sz_k_tau[t] = tmp1_sz * 2./beta
         sz_kp_tau[t]= tmp2_sz * 2./beta
 

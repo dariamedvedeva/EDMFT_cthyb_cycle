@@ -1,5 +1,11 @@
-# -*- coding: utf-8 -*-
-# 3 columns: x, y and intencity
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+#                   Plot square                         #
+#       3 columns in the file: x, y and intencity       #
+#                                                       #
+# How to run:                                           #
+# python plot_dispertion.py filename.dat num_of_points  #
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+
 import sys
 import os
 import numpy as np
@@ -15,8 +21,6 @@ if len (sys.argv) > 1:
 else:
     print ("Enter filename and number of kpoints.")
 
-
-
 #save picture
 def save(name = '', fmt = 'png'):
     pwd = os.getcwd()
@@ -26,22 +30,19 @@ def save(name = '', fmt = 'png'):
 
 def picture():
     
-    ##############
-    # read file
-    ##############
+    # # # # # # # # # # # # # #
+    #        R E A D          #
+    # # # # # # # # # # # # # #
     f = open(input_filename)
     data = f.readlines()
-
     global kpt
     intensity = [ [0.0] * np.int(kpt) for i in range(np.int(kpt)) ]
-
     value = []
     for str in data:
         value.append( str.split() )
     
     i=0
     j=0
-    
     while (i < kpt):
         while (j < kpt):
             intensity[j][i] = float(value[kpt * i + j][2])
@@ -50,22 +51,12 @@ def picture():
             j  = 0
             i += 1
         
-#    test = open("test_tk.dat", "w")
-#    for i in range(kpt):
-##        for j in range(kpt):
-#        print(intensity[i][:])
-##            print('\t')
-#        print('\n')
-#    test.close()
     
-    #############################
-    # PLOT
-    ############################
+    # # # # # # # # # # # # # #
+    #        P L O T          #
+    # # # # # # # # # # # # # #
     plt.figure()
     plt.imshow(intensity, origin="lower", cmap=cm.rainbow)
-
-    # plt.xticks((0, 49), ('$\Gamma$', 'K'), color='k', size=20)
-    # plt.yticks((0, 49), ('$\Gamma$', 'K'), color='k', size=20)
 
     plt.grid(False)
     plt.axis('off')
@@ -73,8 +64,6 @@ def picture():
     plt.draw()
 
     filename = 'out'
- #   save(name=filename, fmt='pdf')
- #   save(name=filename, fmt='png')
     print ("Finish.")
     plt.show()
     exit()
