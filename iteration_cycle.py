@@ -341,36 +341,36 @@ def new_delta(mix_par):
     print("+  Reduce noise in Delta function +")
     print("+ + + + + + + + + + + + + + + + + + \n")
     # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - #
-    # crutches && bicycles
-    print(" >> crutches && bicycles var.")
-    # first i frequencies
-    i = 50
-    chi = (Delta_new[i]*frequencies[i])
-    
-    def analytical_approx_re(arg, c0, c2, c4, c6):
-        return c0 - c2/(arg**2) + c4/(arg**4) + c6/(arg**6)
-
-    def analytical_approx_im(arg, c0, c1, c3, c5):
-#        return c0 - c1/arg - c3/(arg**3) + c5/(arg**5)
-        return c0 - c1/arg + c3/(arg**3) + c5/(arg**5)
-
-    # real part
-    c_start = [Delta_new.real[0], chi.real, chi.real, chi.real]
-    c, cov = curve_fit(analytical_approx_re, frequencies.imag[:i], Delta_new.real[:i], c_start, maxfev = 500000)
-    print(c)
-    Delta_new.real = analytical_approx_re(frequencies.imag, c[0], c[1], c[2], c[3])
-
-    # imag part
-    g_start = [Delta_new.imag[0], chi.imag, chi.imag, chi.imag]
-    g, cov = curve_fit(analytical_approx_im, frequencies.imag[:i], Delta_new.imag[:i], g_start, maxfev = 500000)
-    print(g)
-    Delta_new.imag = analytical_approx_im(frequencies.imag, g[0], g[1], g[2], g[3])
-    
-    filename = 'Delta_new_extrapolation.dat'
-    np.savetxt(filename, np.column_stack((frequencies.imag, Delta_new.real, Delta_new.imag)))
-    print("Reconstructed function was saved in file " + filename + ".\n" )
+#   (1) crutches && bicycles --> works only fro high frequencies
+#    print(" >> crutches && bicycles var.")
+#    # first i frequencies
+#    i = 50
+#    chi = (Delta_new[i]*frequencies[i])
+#
+#    def analytical_approx_re(arg, c0, c2, c4, c6):
+#        return c0 - c2/(arg**2) + c4/(arg**4) + c6/(arg**6)
+#
+#    def analytical_approx_im(arg, c0, c1, c3, c5):
+##        return c0 - c1/arg - c3/(arg**3) + c5/(arg**5)
+#        return c0 - c1/arg + c3/(arg**3) + c5/(arg**5)
+#
+#    # real part
+#    c_start = [Delta_new.real[0], chi.real, chi.real, chi.real]
+#    c, cov = curve_fit(analytical_approx_re, frequencies.imag[:i], Delta_new.real[:i], c_start, maxfev = 500000)
+#    print(c)
+#    Delta_new.real = analytical_approx_re(frequencies.imag, c[0], c[1], c[2], c[3])
+#
+#    # imag part
+#    g_start = [Delta_new.imag[0], chi.imag, chi.imag, chi.imag]
+#    g, cov = curve_fit(analytical_approx_im, frequencies.imag[:i], Delta_new.imag[:i], g_start, maxfev = 500000)
+#    print(g)
+#    Delta_new.imag = analytical_approx_im(frequencies.imag, g[0], g[1], g[2], g[3])
+#
+#    filename = 'Delta_new_extrapolation.dat'
+#    np.savetxt(filename, np.column_stack((frequencies.imag, Delta_new.real, Delta_new.imag)))
+#    print("Reconstructed function was saved in file " + filename + ".\n" )
     # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - #
-#    # high frequency decomposition
+#    # high frequency decomposition --> some strange behaviour of the function can occur
 #    print(" >> high frequency decomposition")
 #    # first i frequencies
 #    num_of_used_freqs = 50
@@ -408,13 +408,16 @@ def new_delta(mix_par):
 #    np.savetxt(filename, np.column_stack((frequencies.imag, decomposition.real, decomposition.imag, )))
 #    print("Decomposed function was saved in file " + filename + ".\n" )
     # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - #
-    # minimization
+    # minimization --> perfect.
+    # Should be done twice.
     print(" >> minimization")
     num_of_used_freqs = 50
-    bath_size = 7
+    bath_size = 9
     filename = 'Delta_new.dat'
-    D2 = delta_min.DeltaMin(filename, bath_size, num_of_used_freqs)
-    coeffs2 = D2.minimize3("delta") # coeffs[E ... , V ...]
+    params = [-5.0,-2.5,-1.5,-0.5,0.0,0.5,1.5,2.5,5.0,0.5,0.1,0.5,0.3,0.5,0.4,0.6,0.72,0.5]
+#    params = [-5.413,-2.684,-1.523,0.012,-0.895,0.643,1.854,3.003,3.302,0.262,0.06,0.208,0.093,0.024,0.18,0.191,0.122,0.064]
+    D2 = delta_min.DeltaMin(filename, bath_size, num_of_used_freqs, params)
+    coeffs2 = D2.minimize("delta") # coeffs[E ... , V ...]
     coeffs2[bath_size : bath_size *2] = abs(coeffs2[bath_size : bath_size *2])
     print("Result values:")
     print(*np.around(coeffs2, decimals=3), sep = ",")
@@ -498,7 +501,7 @@ def X_loc(beta, interaction, Nk, lattice_type):
     for j in range(X_charge_loc.__len__()):
         for i in range(get_num_of_tr_points()):
 #            X_charge_loc[j] += 1.0/ (1.0 / X_charge[j] + lambda_charge[j] - V_k[i])
-            X_charge_loc[j] += 1.0 / (lambda_charge[j] - V_k[i] )
+            X_charge_loc[j] +=  1.0 / ( 1.0 / X_charge[j] + lambda_charge[j] - V_k[i])
     X_charge_loc /= get_num_of_tr_points()
     
     np.savetxt("X_loc.dat", np.column_stack((frequencies.imag, X_charge_loc.real, X_charge_loc.imag)))

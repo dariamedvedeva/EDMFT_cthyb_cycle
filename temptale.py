@@ -43,7 +43,8 @@ def create_dir_with_files(type_of_calc, iteration):
 def prepare_files_for_new_it(type_of_calc, iteration):
     folder = "results_iteration_" + str(iteration)
 #    os.system("cp " + folder + "/Delta_new.dat .")
-    os.system("cp " + folder + "/Delta_new_extrapolation.dat Delta.dat")
+#    os.system("cp " + folder + "/Delta_new_extrapolation.dat Delta.dat")
+    os.system("cp " + folder + "/Delta_new_minimized.dat Delta.dat")
     
     if(type_of_calc == "edmft"):
         os.system("cp " + folder + "/Lambda_new_smooth.dat Phi.dat")
