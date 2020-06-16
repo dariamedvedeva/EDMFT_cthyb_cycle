@@ -22,7 +22,7 @@ class DeltaMin:
   chit = False
   params_fr = []
 
-  def __init__(self, filename, bath_size, num_of_freqs, verb=False):
+  def __init__(self, filename, bath_size, num_of_freqs, params, verb=False):
     iwmax = num_of_freqs
     self.bath = bath_size
     self.Verbose = verb
@@ -44,15 +44,15 @@ class DeltaMin:
     self.X0.append([])
     self.X.append([])
     
-    # start parameters]
-    Epsk = []
-    Vk  = []
-    for i in range(bath_size):
-        # idea: from -5 to 5 with step 10/bath_size
-        step = (right_lim - left_lim) / (bath_size - 1)
-        Epsk.append(left_lim + i* step)
-        Vk.append(0.3) 
-    params  = Epsk + Vk
+    # start parameters
+#    Epsk = []
+#    Vk  = []
+#    for i in range(bath_size):
+#        # idea: from -5 to 5 with step 10/bath_size
+#        step = (right_lim - left_lim) / (bath_size - 1)
+#        Epsk.append(left_lim + i* step)
+#        Vk.append(0.3)
+#    params  = Epsk + Vk
 
 
     for i in range(len(params)):
@@ -157,7 +157,7 @@ class DeltaMin:
   #----------------------------------#
   #      M i n i m i z a t i o n     #
   #----------------------------------#
-  def minimize(self):
+  def minimize(self, postfix):
     # minimize only | a.imag ** 2 + a.real ** 2 |
     t = np.array(self.omega, dtype=float)
     y = np.array(self.func, dtype=np.complex)
@@ -165,7 +165,8 @@ class DeltaMin:
     print ("Start values:\t", x0)
     x, flags = leastsq(self.residuals, x0, args=(y, t), maxfev=700000)
     self.X[0] = x
-    self.Delta_output("Delta_1.dat", t, x)
+    name = "Delta_" + postfix + ".dat"
+    self.Delta_output(name, t, x)
     return self.X[0]
 
   def minimize2(self, postfix):
