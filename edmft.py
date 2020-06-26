@@ -3,6 +3,13 @@
 # For questions: medvedeva.ds@gmail.com       #
 # Skype: daryacooper                          #
 # # # # # # # # # # # # # # # # # # # # # # # #
+print("\n# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #")
+print("#    SELF-CONSISTENCY CYCLE FOR EDMFT, BASED ON CT-HYB SEGMENT    # ")
+print("# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #\n")
+print("Developed by Medvedeva D. 2018 - 2020")
+print("For any questions: medvedeva.ds@gmail.com  ")
+print("Skype: daryacooper\n")
+print("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - \n\n")
 
 import iteration_cycle
 import discrete_fourier
@@ -70,16 +77,16 @@ number_of_bosonic_frequencies           = 1024
 number_of_discrete_tau_points           = 4096  # Friedrich - 4096
 
 
-number_of_iterations = 1
+number_of_iterations = 4
 start_time = time.time()
 
-for iteration in range(0, number_of_iterations, 1):
+for iteration in range(1, number_of_iterations, 1):
     print (" ")
-    print ("++++++++++++++++++++++++++")
-    print ("ITERATION NUMBER ", str(iteration))
-    print ("++++++++++++++++++++++++++")
+    print ("+ + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + +")
+    print ("\t\t       ITERATION NUMBER ", str(iteration), "")
+    print ("+ + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + +")
     print (" ")
-
+    
     #-------------------------------------------------------#
     #               1. Delta(w) -> Delta (\tau)             #
     #-------------------------------------------------------#
@@ -112,7 +119,9 @@ for iteration in range(0, number_of_iterations, 1):
             sys.exit()
         else:
              # run solver if executable file exists
-            print("CT-QMC calculation began.")
+            print ("\n+ - - - - - - - - - - - - - - - +")
+            print ("!   Run CT-HYB SEGMENT solver   !")
+            print ("+ - - - - - - - - - - - - - - - +\n")
         ct_hyb.run_ct_hyb(path_to_exec_file, num_omp_threads, num_mpi_threads, beta, U, hartree_shift, number_of_bosonic_frequencies, number_of_discrete_tau_points, number_of_fermionic_freqs)
     else:
         print("Error! Check the path to the solver execution file. \(^o^)/ ")
@@ -135,7 +144,7 @@ for iteration in range(0, number_of_iterations, 1):
         interaction = Coulomb
         iteration_cycle.X_loc(beta, interaction, Nk, lattice_type)
         # 2. Lambda
-        mixing_parameter = 0.25
+        mixing_parameter = 0.1
         iteration_cycle.new_lambda(mixing_parameter)
     else:
         print("New Lambda function is not calculated.")
@@ -154,8 +163,7 @@ for iteration in range(0, number_of_iterations, 1):
     #-------------------------------------------------------#
     #             8. rename files for new_iteration         #
     #-------------------------------------------------------#
-    tmp.prepare_files_for_new_it(type_of_calc, create_dir_with_files)
-
+    tmp.prepare_files_for_new_it(type_of_calc, iteration)
 
     print("Time for one iteration {} min".format(np.round((time.time() - start_time)/60),2))
         

@@ -33,11 +33,10 @@ def init_lambda(w0p, Wp, number_of_freqs, beta):
         print ("The lenghts of Ek and Vk are different.")
         os.abort()
 
-    for ind in range(number_of_freqs):
+    for ind in range(0, number_of_freqs, 1):
         v[ind] = discrete_fourier.bosonic_mats(ind, beta) * 1j
         for orbital_index in range(P):
             Lambda[ind] += 2. * (np.abs(Wp[orbital_index])**2 * w0p[orbital_index]) / ((v[ind]**2 - w0p[orbital_index]**2))
-
     return v, Lambda
 
 
@@ -45,15 +44,15 @@ def rewrite_Phi_file_for_cthyb_solver(freq, lambda_charge):
     n = len(lambda_charge)
     lambda_spin = np.zeros(n, np.complex)
     
-    np.savetxt("Phi.dat", np.column_stack((freq.imag, lambda_charge.real, lambda_charge.imag, lambda_spin.real, lambda_spin.imag)))
-    np.savetxt("Phi_0.dat", np.column_stack((freq.imag, lambda_charge.real, lambda_charge.imag, lambda_spin.real, lambda_spin.imag)))
+#    np.savetxt("Phi.dat", np.column_stack((freq.imag, lambda_charge.real, lambda_charge.imag, lambda_spin.real, lambda_spin.imag)))
+    np.savetxt("Phi_start.dat", np.column_stack((freq.imag, lambda_charge.real, lambda_charge.imag, lambda_spin.real, lambda_spin.imag)))
 
 
 def construct_hybr_functions(beta, ferm, bos, U, Ek, Vk, w0p, Wp):
 
     frequencies, initial_delta =  init_delta(Ek, Vk, ferm, beta)
-    np.savetxt("Delta.dat", np.column_stack((frequencies.imag, initial_delta.real, initial_delta.imag)))
-    np.savetxt("Delta_0.dat", np.column_stack((frequencies.imag, initial_delta.real, initial_delta.imag)))
+#    np.savetxt("Delta.dat", np.column_stack((frequencies.imag, initial_delta.real, initial_delta.imag)))
+    np.savetxt("Delta_start.dat", np.column_stack((frequencies.imag, initial_delta.real, initial_delta.imag)))
 
-    frequencies, initial_lambda = init_lambda(w0p, Wp, bos, beta)
-    rewrite_Phi_file_for_cthyb_solver(frequencies, initial_lambda)
+    frequencies2, initial_lambda = init_lambda(w0p, Wp, bos, beta)
+    rewrite_Phi_file_for_cthyb_solver(frequencies2, initial_lambda)

@@ -68,7 +68,10 @@ def set_model_parameters():
         mu = 0.0                    # this is the chemical potential (NOT IN THE IMPURITY MODEL)
         
         particle_hole_symm  = 0     # Because the lattice is frustrated
-        
+    
+    # Info about model
+    
+    
     print ("Lattice type is ", lattice_type)
     print ("5*beta*U/(2pi) ~ ", str(int(5*beta*U/(2.*np.pi))))
     print ("mu = {}".format(mu))

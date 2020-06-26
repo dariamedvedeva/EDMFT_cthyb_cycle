@@ -1,9 +1,3 @@
-# # # # # # # # # # # # # # # # # # # # # # # #
-#         Medvedeva D.S. 2018 - 2020          #
-# For questions: medvedeva.ds@gmail.com       #
-# Skype: daryacooper                          #
-# # # # # # # # # # # # # # # # # # # # # # # #
-
 import subprocess
 import numpy as np
 import h5py
@@ -31,29 +25,34 @@ def get_num_of_tr_points():
     return triang_points
 
 def read_G_imp_frequencies(filename):
+    # read file
     D = np.loadtxt(filename)
     frequencies = 1.j*D[:,0]
     function = D[:,1] + 1j * D[:,2]
     return frequencies, function
     
 def read_freq_function(filename):
+    # read file
     D = np.loadtxt(filename)
     frequencies = 1.j*D[:,0]
     function = D[:,1] + 1j * D[:,2]
     return frequencies, function
 
 def read_function(filename):
+    # read file
     D = np.loadtxt(filename)
     function = D[:,1] + 1j * D[:,2]
     return function
 
 def read_2_functions_in_file(filename):
+    # read file
     D = np.loadtxt(filename)
     function1 = D[:,1] + 1j * D[:,2]
     function2 = D[:,3] + 1j * D[:,4]
     return function1, function2
 
 def read_real_function(filename):
+    # read file
     D = np.loadtxt(filename)
     argument = D[:,0]
     function = D[:,1]
@@ -77,13 +76,38 @@ def read_correlator_file(filename):
     nnw_11 = D[:,3]
     return freq, nnw_00, nnw_10, nnw_11
 
+
+#def delta_from_sigma(mu, Nk, t, lattice_type):
+#    global sqrt32, sqrt3
+#    frequencies, G_imp_omega = read_G_imp_frequencies("Gw.dat")
+#    Delta = read_function("Delta.dat")
+#    Sigma = read_function("Sw.dat")
+#    G_loc       = np.zeros(G_imp_omega.shape, dtype=np.complex64)
+#    Delta_new   = np.zeros(G_imp_omega.shape, dtype=np.complex64)
+#
+#    print ("**Compute local 1PGF")
+#
+#
+#    G_loc += 1.0/ (frequencies + mu - t_k - Sigma)
+#    G_loc /= Nk ** 2
+#    np.savetxt("G_loc.dat", np.column_stack((frequencies.imag, G_loc.real, G_loc.imag)))
+#
+#    G_0 = g_0(frequencies, mu, Delta)
+#
+#    #####################
+#    # New Delta
+#    #####################
+#    print ("**Compute new delta function")
+#    Delta_2 = frequencies + mu - Sigma - 1./G_loc
+#    np.savetxt("Delta_from_Sigma.dat", np.column_stack((frequencies.imag, Delta_2.real, Delta_2.imag)))
+
 def retarded_function_ct_hyb(filename):
     time, Lt = read_real_function(filename + ".dat")
     dLdt = numerical_derivative(time, Lt)
     time.pop(len(time) - 1)
     Lt.pop(len(Lt) - 1)
-    subprocess.call("rm", filename + '_ct_hyb.dat')
-    f = open(filename + '_ct_hyb.dat', "w")
+    subprocess.call("rm", filename + "_ct_hyb.dat")
+    f = open(filename + "_ct_hyb.dat", "w")
     for i in range(len(time) - 1):
         f.write(str(i))
         f.write(' ')
@@ -116,6 +140,7 @@ def compute_numerical_derivative(x, y):
 def calculate_b_vectors(a1, a2, a3):
     
     vol = a1[0]*(a2[1]*a3[2]-a2[2]*a3[1])- a1[1]*(a2[0]*a3[2]-a3[0]*a2[2]) + a1[2]*(a2[0]*a3[1]-a2[1]*a3[0])
+#    print("vol = ", vol)
     
     tpi = 2.0 * np.pi
     b1 = [0.0, 0.0, 0.0]
@@ -135,7 +160,7 @@ def calculate_b_vectors(a1, a2, a3):
     return b1, b2, b3
 
 def get_b_vectors(lattice_type):
-    if lattice_type == "square":
+    if lattice_type == 'square':
        # real. vectors a1 & a2 & a3
         a1 = [ 1.0, 0.0 , 0.0]
         a2 = [ 0.0, 1.0 , 0.0]
@@ -143,7 +168,7 @@ def get_b_vectors(lattice_type):
         # recipr. vectors b1 & b2 & b3
         b1, b2, b3 = calculate_b_vectors(a1, a2, a3)
            
-    if lattice_type == "triangular":
+    if lattice_type == 'triangular':
         # real. vectors a1 & a2 & a3
 #        a1 = [0.866025, -0.5, 0.0]
 #        a2 = [0.866025, 0.5,  0.0]
@@ -158,15 +183,20 @@ def get_kstep(lattice_type, Nk):
     # Nk - number of points
     # Nk - 1 - number of "slices" of the Mesh
     b1, b2, b3 = get_b_vectors(lattice_type)
-    if lattice_type == "square":
+    if lattice_type == 'square':
         # compute step in the grid
         kstep_x = 2.0 * (2. * np.pi) / (Nk - 1)
         kstep_y = 2.0 * (2. * np.pi) / (Nk - 1)
+        # kstep_x = b1[0] / (Nk - 1)
+        # kstep_y = b2[1] / (Nk - 1)
+        # kstep_z = b3[2] / (Nk - 1)
+#        print("kstep_x = " , str(kstep_x), "\nkstep_y = " , str(kstep_y))
               
-    if lattice_type == "triangular":
+    if lattice_type == 'triangular':
         # compute step in the grid
-        kstep_x = 2. * (4.0 * np.pi / 3. )/ (Nk - 1)
+        kstep_x = (2. * (4.0 * np.pi / 3. ))  / (Nk - 1)
         kstep_y = (2. * (2. * np.pi / sqrt3)) / (Nk - 1)
+#        print("kstep_x = " , str(kstep_x), "\nkstep_y = " , str(kstep_y))
     return kstep_x, kstep_y
 
 def interaction_dispersion(filename, Nk, lattice_type, param):
@@ -176,44 +206,58 @@ def interaction_dispersion(filename, Nk, lattice_type, param):
     interaction = np.zeros(Nk * Nk, dtype = np.float)
     
     b1, b2, b3 = get_b_vectors(lattice_type)
+    
+#    print('b1 = ', b1 )
+#    print('b2 = ', b2 )
+#    print('b3 = ', b3 )
+
     kstep_x, kstep_y = get_kstep(lattice_type, Nk)
     
     for k in range(Nk * Nk):
         vec_ = [0.0, 0.0]
         for i in range(2):
-        # Daria?
             if (lattice_type == "square"):
                 kpoints_coordinates[k][i] = kpoints[k][0] * b1[i]/ (Nk - 1) + kpoints[k][1] * b2[i] / (Nk - 1)
             elif (lattice_type == "triangular"):
                 kpoints_coordinates[k][i] = kpoints[k][0] * b1[i]/ (Nk - 1) + kpoints[k][1] * b2[i] / (Nk - 1)
     
-    dispersion = open(filename + '.dat', "w")
+    dispersion = open(filename + ".dat", "w")
     
-    if lattice_type == "triangular":
+    if lattice_type == 'triangular':
         abs_k = sqrt3
         abs_b = 4. * np.pi * sqrt3 / 3.
+        
 #        x_boundary = -4. * np.pi / 3.
 #        y_boundary = -2. * np.pi / sqrt3
-#       OR
+# OR
         x_boundary = 0.0
         y_boundary = 0.0
+#        print("shift for G point s = ( {}, {} )".format(x_boundary, y_boundary))
     
     m = 0
     i = 0
     for k in kpoints_coordinates:
         
         # SQUARE
-        if lattice_type == "square":
+        if lattice_type == 'square':
             interaction[i] = -2. * param * np.sum(np.cos(-np.pi + k))
         # TRIANG
-        if lattice_type == "triangular":
+        if lattice_type == 'triangular':
             k_x = k[0]
             k_y = k[1]
             x_coord = x_boundary + k_x
             y_coord = y_boundary + k_y
-            interaction[i]  = -2. * param[0] * (np.cos(x_coord) + 2. * np.cos(0.5 * x_coord) * np.cos(y_coord * sqrt32))
-            interaction[i] += -2. * param[1] * (np.cos(sqrt3 * y_coord) + 2. * np.cos(3./2. * x_coord) * np.cos(y_coord * sqrt32))
-            interaction[i] += -2. * param[2] * (np.cos(2. * x_coord) + 2. * np.cos(x_coord) * np.cos(sqrt3 * y_coord ))
+        
+            # first
+            interaction[i]  = 2. * param[0] * ( np.cos(x_coord) + np.cos(0.5 * x_coord + sqrt32 * y_coord) + np.cos(0.5 * x_coord - sqrt32 * y_coord) )
+            # second
+            interaction[i] += 2. * param[1] * ( np.cos(sqrt3 * y_coord) + np.cos(3./2. * x_coord + sqrt32 * y_coord) + np.cos(3./2. * x_coord - sqrt32 * y_coord) )
+            # third
+            interaction[i] += 2. * param[2] * ( np.cos(2. * x_coord) + np.cos(x_coord + sqrt3 * y_coord) + np.cos(x_coord - sqrt3 * y_coord) )
+            
+#            interaction[i]  = -2. * param[0] * (np.cos(x_coord) + 2. * np.cos(0.5 * x_coord) * np.cos(y_coord * sqrt32))
+#            interaction[i] += -2. * param[1] * (np.cos(sqrt3 * y_coord) + 2. * np.cos(3./2. * x_coord) * np.cos(y_coord * sqrt32))
+#            interaction[i] += -2. * param[2] * (np.cos(2. * x_coord) + 2. * np.cos(x_coord) * np.cos(sqrt3 * y_coord ))
             m +=1
             
         dispersion.write(str(np.round(k_x, 6)))
@@ -231,9 +275,15 @@ def interaction_dispersion(filename, Nk, lattice_type, param):
 def Gloc(mu, Nk, t, lattice_type, U):
    
     global sqrt32, sqrt3
-    frequencies, G_imp_omega = read_G_imp_frequencies('Gw.dat')
-    Delta = read_function('Delta.dat')
-    Sigma = read_function('Sw.dat')
+    frequencies, G_imp_omega = read_G_imp_frequencies("Gw.dat")
+    Delta = read_function("Delta.dat")
+    Sigma = read_function("Sw.dat")
+#    print(Sigma)
+    
+#    if (Sigma[1].imag - Sigma[0].imag > 0.0):
+#        metal = True
+#    else:
+#        metal = False
         
     G_loc       = np.zeros(G_imp_omega.shape, dtype=np.complex64)
     G_exact     = np.zeros(G_imp_omega.shape, dtype=np.complex64)
@@ -242,13 +292,12 @@ def Gloc(mu, Nk, t, lattice_type, U):
 #    if (Delta.Shape() != G_imp_omega.Shape()):
 #        print "Error: Array sizes of Delta and Gw(impurity) functions are not equal!"
 
-#    Corrections
+    # Corrections
 #    corrections(frequencies, mu, Delta, Sigma, beta, U)
-    """
+    
     ################################################################################
     #                              New G_loc
     ################################################################################
-    """
     
     t_k, kpoints_coordinates = interaction_dispersion("t_k", Nk, lattice_type, t)
     
@@ -259,15 +308,16 @@ def Gloc(mu, Nk, t, lattice_type, U):
             G_loc += 1.0 / (frequencies + mu - t_k[i] - Sigma)
         G_loc /= Nk ** 2
     elif (lattice_type == "triangular"):
-#        It is possible to make Sigma more smooth, but finally it is not necessary.
 #        Sigma = smooth_function.smooth_data(frequencies.imag, Sigma, 400, "Sigma_smooth")
         for i in range(get_num_of_tr_points()):
-            # because of constant shift in Sigma from solver.
+#            G_loc += 1.0 / (frequencies + mu - t_k[i] - Sigma)
+            # because of constant shift
             G_loc += 1.0 / (frequencies + mu - t_k[i] - (Sigma - U/2.))
         G_loc /= get_num_of_tr_points()
     np.savetxt("G_loc.dat", np.column_stack((frequencies.imag, G_loc.real, G_loc.imag)))
     # G_loc_smooth = smooth_function.smooth_data(frequencies.imag, G_loc, 400, "G_loc_smooth")
     return 0
+    
 
 #    /*
 # Non interacting function
@@ -283,7 +333,7 @@ def new_delta(mix_par):
     print ("**Compute new delta function (write in file {}).".format(filename))
 
     frequencies, G_imp_omega = read_G_imp_frequencies('Gw.dat')
-#   Tryings to smooth. All of them works. Doesn't make any sence.
+# Tryings to smooth. All of them works
 #    G_imp_omega = smooth_function.smooth_data(frequencies.imag, G_imp_omega, 400, "G_imp_omega")
 #    G_imp_omega = smooth_function.reduce_noise(frequencies, G_imp_omega, 15, "Gw_smooth")
     Delta = read_function('Delta.dat')
@@ -298,6 +348,7 @@ def new_delta(mix_par):
     print("\n+ + + + + + + + + + + + + + + + + + ")
     print("+  Reduce noise in Delta function +")
     print("+ + + + + + + + + + + + + + + + + + \n")
+    
     # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - #
 #   (1) crutches && bicycles --> works only fro high frequencies
 #    print(" >> crutches && bicycles var.")
@@ -327,8 +378,8 @@ def new_delta(mix_par):
 #    filename = 'Delta_new_extrapolation.dat'
 #    np.savetxt(filename, np.column_stack((frequencies.imag, Delta_new.real, Delta_new.imag)))
 #    print("Reconstructed function was saved in file " + filename + ".\n" )
-
     # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - #
+    
 #    # high frequency decomposition --> some strange behaviour of the function can occur
 #    print(" >> high frequency decomposition")
 #    # first i frequencies
@@ -369,29 +420,13 @@ def new_delta(mix_par):
     # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - #
     
     # minimization --> perfect.
-    # Should be done T W I C E.
-    num_of_used_freqs = 50      # Necessary to choose the number of first points to minimize. (Preferable without noise)
+    # Should be done twice.
+    print(" >> minimization")
+    num_of_used_freqs = 25
     bath_size = 9
-    print(" >> minimization for {} points by {} effective orbitals.".format(num_of_used_freqs, bath_size))
     filename = 'Delta_new.dat'
-    
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - #
-#                                       N O T E :                                                 #
-#                                                                                                 #
-#   This array looks like this:                                                                   #
-#   params  = coeffs[E ... , V ...], where Ek - energies of the effective orbitals,               #
-#   Vk - the hybridization parameter.                                                             #
-#   Analytical view of the hybridization function is                                              #
-#           ---                                                                                   #
-#           \      Vk^2                                                                           #
-#  Delta =   >  -----------, where w - frequencies (real or matsubara's).                         #
-#           /    (w - Ek)                                                                         #
-#           ---                                                                                   #
-#            k                                                                                    #
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - #
-
     params = [-5.0,-2.5,-1.5,-0.5,0.0,0.5,1.5,2.5,5.0,0.5,0.1,0.5,0.3,0.5,0.4,0.6,0.72,0.5]
-#    params = [-5.413,-2.684,-1.523,0.012,-0.895,0.643,1.854,3.003,3.302,0.262,0.06,0.208,0.093,0.024,0.18,0.191,0.122,0.064]
+#    params = [-44.569,-50.354,-10.446,-4.818,-0.211,0.0,0.261,6.253,71.805,0.0,0.0,0.0,0.205,0.067,0.072,0.183,0.0,0.81]
     D2 = delta_min.DeltaMin(filename, bath_size, num_of_used_freqs, params)
     coeffs2 = D2.minimize("delta") # coeffs[E ... , V ...]
     coeffs2[bath_size : bath_size *2] = abs(coeffs2[bath_size : bath_size *2])
@@ -401,7 +436,7 @@ def new_delta(mix_par):
     minimized_function  = D2.delta_model(frequencies.imag, coeffs2)
     filename = 'Delta_new_minimized.dat'
     np.savetxt(filename, np.column_stack((frequencies.imag, minimized_function.real, minimized_function.imag)))
-    print("Decomposed function was saved in file " + filename + ".\n" )
+    print("Minimized Delta function was saved into the file " + filename + ".\n" )
     # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - #
     return 0
 
@@ -445,11 +480,16 @@ def bosonic_frequencies(number_of_freqs, beta):
 
 def susceptibility(correlator_filename, beta):
     freq, nn_00, nn_10, nn_11 = read_correlator_file(correlator_filename)
+    #chiw_charge = (nn_00 + nn_10) * 2.0
+    #chiw_spin  = (nn_00 - nn_10) * 2.0
     chiw_charge = nn_00 + 2. * nn_10 + nn_11
-    chiw_spin     = nn_00 - 2. * nn_10 + nn_11
+    chiw_spin   = nn_00 - 2. * nn_10 + nn_11
+ #   np.savetxt("X_not_0.dat", np.column_stack((freq.imag, chiw_charge, chiw_spin)))
     charge_density, spin_density = ro()
+#    print(type(beta), type(charge_density))
     chiw_charge[0] -= beta * charge_density * charge_density
     chiw_spin[0]   -= beta * spin_density * spin_density
+    # bosonic_freq = bosonic_frequencies(len(chiw_charge), beta)
     chiw_charge_ = -chiw_charge + 0.0 * 1j
     chiw_spin_   = -chiw_spin   + 0.0 * 1j
     np.savetxt("Xw.dat", np.column_stack((freq.imag, chiw_charge_.real, chiw_charge_.imag, chiw_spin_.real, chiw_spin_.imag)))
@@ -458,20 +498,35 @@ def susceptibility(correlator_filename, beta):
 
 def X_loc(beta, interaction, Nk, lattice_type):
     global sqrt32, sqrt3
-    
+    filename_chi_loc_v0 = "X_loc_v0.dat"
     # read
     frequencies, X_charge, X_spin = susceptibility("nnw.dat", beta)
+    
+    V_k, kpoints_coordinates = interaction_dispersion("V_k", Nk, lattice_type, interaction)
     
     # init arrays for local quantities
     lambda_charge, lambda_spin = read_2_functions_in_file("Phi.dat")
     X_charge_loc    = np.zeros(X_charge.shape, dtype=np.complex64)
-    V_k, kpoints_coordinates = interaction_dispersion("V_k", Nk, lattice_type, interaction)
+    X_charge_loc_v0 = np.zeros(V_k.shape, dtype=np.complex64)
+    
+    chi_loc_v0 = open(filename_chi_loc_v0, "w")
     
     for j in range(X_charge_loc.__len__()):
         for i in range(get_num_of_tr_points()):
-            X_charge_loc[j] +=  1.0 / ( 1.0 / X_charge[j] + lambda_charge[j] - V_k[i])
+            X_charge_loc[j] += 1.0/ (1.0 / X_charge[j] + lambda_charge[j] - V_k[i])
+            if (j == 0):
+                X_charge_loc_v0[i] = 1.0/ (1.0 / X_charge[j] + lambda_charge[j] - V_k[i])
+                chi_loc_v0.write(str(np.round(kpoints_coordinates[i], 6)))
+                chi_loc_v0.write('\t')
+                chi_loc_v0.write(str(np.round(X_charge_loc_v0.real[i],6)))
+                chi_loc_v0.write('\t')
+                chi_loc_v0.write(str(np.round(X_charge_loc_v0.imag[i],6)))
+                chi_loc_v0.write('\n')
+    
     X_charge_loc /= get_num_of_tr_points()
     
+    chi_loc_v0.close()
+#    np.savetxt("X_loc_v0.dat", np.column_stack((kpoints_coordinates, X_charge_loc.real, X_charge_loc.imag)))
     np.savetxt("X_loc.dat", np.column_stack((frequencies.imag, X_charge_loc.real, X_charge_loc.imag)))
     print("File X_loc.dat is constructed.\n")
     
@@ -512,11 +567,12 @@ def new_lambda(mix_par):
     for j in range(X_charge.__len__()):
         Lambda_new[j] = Lambda[j] + mix_par * intermixed_part[j]
 
-    np.savetxt("Lambda_new.dat", np.column_stack((frequencies.imag, Lambda_new.real, Lambda_new.imag, Lambda_spin_new.real, Lambda_spin_new.imag)))
+    np.savetxt('Lambda_new.dat', np.column_stack((frequencies.imag, Lambda_new.real, Lambda_new.imag, Lambda_spin_new.real, Lambda_spin_new.imag)))
 
     Lambda_new_smooth = np.zeros(Lambda_new.shape, np.complex)
     num_of_points = 100
-    Lambda_new_smooth = smooth_function.smooth_data(frequencies.imag, Lambda_new, num_of_points, "Lambda_new_smooth")
+    # the last parameter - type of smooth: 1 - filter, 2 - minimization
+    Lambda_new_smooth = smooth_function.smooth_data(frequencies.imag, Lambda_new, num_of_points, 'Lambda_new_smooth', 2)
 
     print (Lambda_new_smooth[0])
     np.savetxt("Lambda_new_smooth.dat", np.column_stack(

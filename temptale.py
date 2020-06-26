@@ -16,7 +16,8 @@ import os
 
 def check_delta_file_exist(file):
     if (os.path.exists(file)):                                                                      
-        print("File " + str(file) + " is constructed.\n")
+#        print("File " + str(file) + "exists.\n")
+        a = 1
     else:
         print("There is no file " + str(file) + ". The CT-HYB needs Delta_tau.dat to run DMFT.")
         sys.exit()

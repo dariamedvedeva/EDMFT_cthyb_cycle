@@ -8,10 +8,6 @@ import os
 
 
 def run_ct_hyb(path, num_omp_threads, num_mpi_threads, beta, U, mu, N_W, N, number_of_fermionic_freqs):
-   
-    print ("\n! - - - - - - - - - - - - - !")
-    print ("!  Run CT-HYB SEGMENT solver  !")
-    print ("! - - - - - - - - - - - - - !\n")
     
     os.putenv('OMP_NUM_THREADS', str(int(num_omp_threads)))
     path_for_delta_function = 'Delta_tau_ct_hyb.dat'
@@ -42,13 +38,13 @@ def run_ct_hyb(path, num_omp_threads, num_mpi_threads, beta, U, mu, N_W, N, numb
     arg.append('--FLAVORS')               # number of spin-orbitals (sometimes called flavors)
     arg.append(str(2))
     arg.append('--cthyb.SWEEPS')          # total number of Monte Carlo sweeps to be done 10^9
-    arg.append(str(10000000))
+    arg.append(str(10**9))
     arg.append('--cthyb.THERMALIZATION')  # thermalization sweeps
     arg.append('100')
     arg.append('--SEED')                  # PRNG seed
     arg.append(str(0))
     arg.append('--MAX_TIME')              # maximum solver runtime 
-    arg.append(str(57600))
+    arg.append(str(10800))
     arg.append('--cthyb.MEASURE_freq')    # measure in frequency domain
     arg.append(str(1))
     arg.append('--cthyb.MEASURE_nn')

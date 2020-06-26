@@ -54,7 +54,7 @@ lattice_type, beta, U, hartree_shift, Nk, num_of_neighbours, t, Coulomb, mu, par
 
 # run CT-HYB SEGMENT solver
 number_of_fermionic_freqs               = 1024
-number_of_fermionic_freqs_for_fourier   = 512   # Because of noise we cut the tail of Delta (fermionic hybr. function)
+number_of_fermionic_freqs_for_fourier   = 1024   # Because of noise we cut the tail of Delta (fermionic hybr. function)
 # off and make a Fouriet transform into the \tau - space by the first frequencies with smooth data.
 number_of_bosonic_frequencies           = 1024
 number_of_discrete_tau_points           = 4096  # Friedrich - 4096
@@ -66,7 +66,7 @@ start_time = time.time()
 for iteration in range(0, number_of_iterations, 1):
     print (" ")
     print ("++++++++++++++++++++++++++")
-    print ("ITERATION NUMBER ", str(iteration))
+    print ("+  EDMFT - consistency   + ")
     print ("++++++++++++++++++++++++++")
     print (" ")
     
@@ -163,9 +163,9 @@ for iteration in range(0, number_of_iterations, 1):
     #-------------------------------------------------------#
     #                 4. New Delta function                 #
     #-------------------------------------------------------#
-#    iteration_cycle.Gloc(mu, Nk, t, lattice_type, U)
-#    mixing_parameter = 0.25
-#    iteration_cycle.new_delta(mixing_parameter)
+    iteration_cycle.Gloc(mu, Nk, t, lattice_type, U)
+    mixing_parameter = 0.25
+    iteration_cycle.new_delta(mixing_parameter)
     
     #-------------------------------------------------------#
     #               5. New Lambda function                  #
@@ -173,10 +173,21 @@ for iteration in range(0, number_of_iterations, 1):
     if (type_of_calc == "edmft"):
         interaction = Coulomb
         iteration_cycle.X_loc(beta, interaction, Nk, lattice_type)
-        mixing_parameter = 0.25
+        mixing_parameter = 0.1
         iteration_cycle.new_lambda(mixing_parameter)
     else:
         print("New Lambda function is not calculated.")
+
+    #-------------------------------------------------------#
+    #                    6. try fourier                     #
+    #-------------------------------------------------------#
+    file = 'Delta_new_minimized.dat'
+    tmp.check_delta_file_exist(file)
+    discrete_fourier.compute(beta, number_of_discrete_tau_points, number_of_fermionic_freqs, number_of_fermionic_freqs_for_fourier, 'Delta_new_minimized')
+     
+    lambda_file_name = 'Lambda_new_smooth.dat'
+    retarded_function.compute_function(number_of_bosonic_frequencies, number_of_discrete_tau_points, beta, lambda_file_name)
+
 
     #-------------------------------------------------------#
     #             6. rename files for new_iteration         #
@@ -186,8 +197,8 @@ for iteration in range(0, number_of_iterations, 1):
     #-------------------------------------------------------#
     #                    7. plot                            #
     #-------------------------------------------------------#
-    os.system("./plot.sh")
-    os.system("mv plot.pdf plot_{}.pdf".format(str('test')))
+    os.system("./plot_second_part.sh")
+    os.system("mv plot.pdf plot_{}.pdf".format(str('sec_part')))
 
     #-------------------------------------------------------#
     #             6. Copy the results into folder           #

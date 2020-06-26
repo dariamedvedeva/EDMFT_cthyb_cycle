@@ -17,7 +17,8 @@ N_W - number of bosonic Matsubara frequencies
 
 def compute_function(nmats, N, beta, lambda_filename):
 
-    print ("Fourier transform Lambda and creation of K")
+    print ("\nFourier transform of Lambda")
+    print ("__________________________")
     
     # data & parameters
     data_charge_, data_spin_ = iteration_cycle.read_2_functions_in_file(lambda_filename)
