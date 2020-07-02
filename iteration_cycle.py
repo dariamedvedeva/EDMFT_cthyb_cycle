@@ -516,11 +516,13 @@ def X_loc(beta, interaction, Nk, lattice_type):
             X_charge_loc[j] += 1.0/ (1.0 / X_charge[j] + lambda_charge[j] - V_k[i])
             if (j == 0):
                 X_charge_loc_v0[i] = 1.0/ (1.0 / X_charge[j] + lambda_charge[j] - V_k[i])
-                chi_loc_v0.write(str(np.round(kpoints_coordinates[i], 6)))
+                chi_loc_v0.write(str(np.round(kpoints_coordinates[i][0], 6)))
+                chi_loc_v0.write('\t')
+                chi_loc_v0.write(str(np.round(kpoints_coordinates[i][1], 6)))
                 chi_loc_v0.write('\t')
                 chi_loc_v0.write(str(np.round(X_charge_loc_v0.real[i],6)))
-                chi_loc_v0.write('\t')
-                chi_loc_v0.write(str(np.round(X_charge_loc_v0.imag[i],6)))
+#                chi_loc_v0.write('\t')
+#                chi_loc_v0.write(str(np.round(X_charge_loc_v0.imag[i],6)))
                 chi_loc_v0.write('\n')
     
     X_charge_loc /= get_num_of_tr_points()

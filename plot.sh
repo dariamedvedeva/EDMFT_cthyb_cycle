@@ -7,7 +7,6 @@ set output "plot.pdf"
 
 #  IN RANGE
 set xrange [0:3]
-set yrange[-1.0:0.5]
 
 set title "Delta"
 plot "Delta.dat" using 1:2 with lines lc 0 lw 2 dt '-.-' title 'Delta_{old} Re',\

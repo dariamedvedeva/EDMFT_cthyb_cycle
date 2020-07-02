@@ -77,10 +77,10 @@ number_of_bosonic_frequencies           = 1024
 number_of_discrete_tau_points           = 4096  # Friedrich - 4096
 
 
-number_of_iterations = 4
+number_of_iterations = 10
 start_time = time.time()
 
-for iteration in range(1, number_of_iterations, 1):
+for iteration in range(0, number_of_iterations, 1):
     print (" ")
     print ("+ + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + +")
     print ("\t\t       ITERATION NUMBER ", str(iteration), "")
@@ -144,7 +144,7 @@ for iteration in range(1, number_of_iterations, 1):
         interaction = Coulomb
         iteration_cycle.X_loc(beta, interaction, Nk, lattice_type)
         # 2. Lambda
-        mixing_parameter = 0.1
+        mixing_parameter = 0.45
         iteration_cycle.new_lambda(mixing_parameter)
     else:
         print("New Lambda function is not calculated.")

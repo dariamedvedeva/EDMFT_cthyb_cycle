@@ -38,7 +38,7 @@ def run_ct_hyb(path, num_omp_threads, num_mpi_threads, beta, U, mu, N_W, N, numb
     arg.append('--FLAVORS')               # number of spin-orbitals (sometimes called flavors)
     arg.append(str(2))
     arg.append('--cthyb.SWEEPS')          # total number of Monte Carlo sweeps to be done 10^9
-    arg.append(str(10**9))
+    arg.append(str(10**10))
     arg.append('--cthyb.THERMALIZATION')  # thermalization sweeps
     arg.append('100')
     arg.append('--SEED')                  # PRNG seed

@@ -54,7 +54,7 @@ lattice_type, beta, U, hartree_shift, Nk, num_of_neighbours, t, Coulomb, mu, par
 
 # run CT-HYB SEGMENT solver
 number_of_fermionic_freqs               = 1024
-number_of_fermionic_freqs_for_fourier   = 1024   # Because of noise we cut the tail of Delta (fermionic hybr. function)
+number_of_fermionic_freqs_for_fourier   = 1000   # Because of noise we cut the tail of Delta (fermionic hybr. function)
 # off and make a Fouriet transform into the \tau - space by the first frequencies with smooth data.
 number_of_bosonic_frequencies           = 1024
 number_of_discrete_tau_points           = 4096  # Friedrich - 4096
@@ -164,8 +164,8 @@ for iteration in range(0, number_of_iterations, 1):
     #                 4. New Delta function                 #
     #-------------------------------------------------------#
     iteration_cycle.Gloc(mu, Nk, t, lattice_type, U)
-    mixing_parameter = 0.25
-    iteration_cycle.new_delta(mixing_parameter)
+    mixing_parameter = 0.05
+#    iteration_cycle.new_delta(mixing_parameter)
     
     #-------------------------------------------------------#
     #               5. New Lambda function                  #
@@ -173,7 +173,7 @@ for iteration in range(0, number_of_iterations, 1):
     if (type_of_calc == "edmft"):
         interaction = Coulomb
         iteration_cycle.X_loc(beta, interaction, Nk, lattice_type)
-        mixing_parameter = 0.1
+        mixing_parameter = 0.45
         iteration_cycle.new_lambda(mixing_parameter)
     else:
         print("New Lambda function is not calculated.")

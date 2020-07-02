@@ -2,8 +2,6 @@
 import numpy as np
 from pylab import *
 from scipy.optimize import leastsq, minimize
-
-
 #from scipy.optimize import least_squares
 import math
 import sys
@@ -11,15 +9,14 @@ left_lim = -5.
 right_lim = 5.
 
 class DeltaMin:
-  Lambda = []
-  omega = []
-  X0 = []
-  X = []
-  func = []
-  odd = False
-  Verbose = False
+  omega     = []
+  X0        = []
+  X         = []
+  func      = []
+  odd       = False
+  Verbose   = False
   random_start_params = False
-  chit = False
+  chit      = False
   params_fr = []
 
   def __init__(self, filename, bath_size, num_of_freqs, params, verb=False):

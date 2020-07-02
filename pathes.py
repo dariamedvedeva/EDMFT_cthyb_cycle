@@ -6,6 +6,6 @@ def get_server_run():
 
 def get_local_run():
     path_to_exec_file   = '/Users/witcher/workspace/CT_HYB_SEGMENT/CT-HYB-SEGMENT/build/alps_cthyb'
-    num_mpi_threads     = 4
+    num_mpi_threads     = 3
     path_to_maxent      = '/Users/witcher/workspace/CT_HYB_SEGMENT/Maxent/build2/maxent'
     return path_to_exec_file, num_mpi_threads, path_to_maxent
