@@ -59,7 +59,7 @@ else:
 # (3) Set parameters                            #
 #                                               #
 #################################################
-lattice_type, beta, U, hartree_shift, Nk, num_of_neighbours, t, Coulomb, mu, particle_hole_symm = \
+lattice_type, beta, U, hartree_shift, Nk, num_of_neighbours, t, Coulomb, mu, particle_hole_symm, sweeps = \
     set_parameters.set_model_parameters()
 
 
@@ -122,7 +122,7 @@ for iteration in range(0, number_of_iterations, 1):
             print ("\n+ - - - - - - - - - - - - - - - +")
             print ("!   Run CT-HYB SEGMENT solver   !")
             print ("+ - - - - - - - - - - - - - - - +\n")
-        ct_hyb.run_ct_hyb(path_to_exec_file, num_omp_threads, num_mpi_threads, beta, U, hartree_shift, number_of_bosonic_frequencies, number_of_discrete_tau_points, number_of_fermionic_freqs, type_of_calc)
+        ct_hyb.run_ct_hyb(path_to_exec_file, num_omp_threads, num_mpi_threads, beta, U, hartree_shift, number_of_bosonic_frequencies, number_of_discrete_tau_points, number_of_fermionic_freqs, type_of_calc, sweeps)
     else:
         print("Error! Check the path to the solver execution file. \(^o^)/ ")
         sys.exit()

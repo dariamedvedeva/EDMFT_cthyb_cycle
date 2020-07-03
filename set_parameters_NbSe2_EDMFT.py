@@ -15,7 +15,10 @@ def set_model_parameters():
     # The sign problem can occure away from half-filling. Don't touch.
     Nk                  = 64       # num. of kpoints in each direction, 64 is better for qmc (Friedrich K.)
     num_of_neighbours   = 3
-
+    
+    #ct_hub parameters
+    sweeps = 10**10
+    
     #############################################
     #                                           #
     #      STATIC PARAMETERS OF A MODEL         #
@@ -58,7 +61,7 @@ def set_model_parameters():
     
     print("Hopping is {}".format(t))
     print("Coulomb is {}".format(Coulomb))
-    return lattice_type, beta, U, hartree_shift, Nk, num_of_neighbours, t, Coulomb, mu, particle_hole_symm 
+    return lattice_type, beta, U, hartree_shift, Nk, num_of_neighbours, t, Coulomb, mu, particle_hole_symm, sweeps
     
 def get_shift_half_filling(dos, Erange, dE):
   if (dE < 0.0):

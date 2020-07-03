@@ -7,7 +7,7 @@ import subprocess
 import os
 
 
-def run_ct_hyb(path, num_omp_threads, num_mpi_threads, beta, U, mu, N_W, N, number_of_fermionic_freqs, type_of_calculation):
+def run_ct_hyb(path, num_omp_threads, num_mpi_threads, beta, U, mu, N_W, N, number_of_fermionic_freqs, type_of_calculation, sweeps):
     
     os.putenv('OMP_NUM_THREADS', str(int(num_omp_threads)))
     path_for_delta_function = 'Delta_tau_ct_hyb.dat'
@@ -38,7 +38,7 @@ def run_ct_hyb(path, num_omp_threads, num_mpi_threads, beta, U, mu, N_W, N, numb
     arg.append('--FLAVORS')               # number of spin-orbitals (sometimes called flavors)
     arg.append(str(2))
     arg.append('--cthyb.SWEEPS')          # total number of Monte Carlo sweeps to be done 10^9
-    arg.append(str(10**9))
+    arg.append(str(sweeps))
     arg.append('--cthyb.THERMALIZATION')  # thermalization sweeps
     arg.append('100')
     arg.append('--SEED')                  # PRNG seed
