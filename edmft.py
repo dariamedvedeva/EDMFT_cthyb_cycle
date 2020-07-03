@@ -36,7 +36,7 @@ import set_parameters
 # You can preset 2 ways to execute: for local execution and on server.
 server          = False
 num_omp_threads = 1
-type_of_calc    = "edmft"
+type_of_calc    = "dmft"
 
 #############################################
 #                                           #
@@ -122,7 +122,7 @@ for iteration in range(0, number_of_iterations, 1):
             print ("\n+ - - - - - - - - - - - - - - - +")
             print ("!   Run CT-HYB SEGMENT solver   !")
             print ("+ - - - - - - - - - - - - - - - +\n")
-        ct_hyb.run_ct_hyb(path_to_exec_file, num_omp_threads, num_mpi_threads, beta, U, hartree_shift, number_of_bosonic_frequencies, number_of_discrete_tau_points, number_of_fermionic_freqs)
+        ct_hyb.run_ct_hyb(path_to_exec_file, num_omp_threads, num_mpi_threads, beta, U, hartree_shift, number_of_bosonic_frequencies, number_of_discrete_tau_points, number_of_fermionic_freqs, type_of_calc)
     else:
         print("Error! Check the path to the solver execution file. \(^o^)/ ")
         sys.exit()
