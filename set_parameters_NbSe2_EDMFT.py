@@ -51,6 +51,12 @@ def set_model_parameters():
         
         particle_hole_symm  = 0
         
+    save_param_file(lattice_type, beta, U, hartree_shift, Nk, num_of_neighbours, t, Coulomb, mu, particle_hole_symm, sweeps)
+    
+    return lattice_type, beta, U, hartree_shift, Nk, num_of_neighbours, t, Coulomb, mu, particle_hole_symm, sweeps
+  
+def save_param_file(lattice_type, beta, U, hartree_shift, Nk, num_of_neighbours, t, Coulomb, mu, particle_hole_symm, sweeps):
+    # -- save parameters in file for the iteration --
     print ("Lattice type is ", lattice_type)
     print ("5*beta*U/(2pi) ~ ", str(int(5*beta*U/(2.*np.pi))))
     print ("mu = {}".format(mu))
@@ -58,10 +64,28 @@ def set_model_parameters():
         print("Particle - hole symmetry - yes.")
     else:
         print("Particle - hole symmetry - no.")
-    
+
     print("Hopping is {}".format(t))
     print("Coulomb is {}".format(Coulomb))
-    return lattice_type, beta, U, hartree_shift, Nk, num_of_neighbours, t, Coulomb, mu, particle_hole_symm, sweeps
+
+    # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+    f = open("save_model_params.dat", "w")
+    f.write("lattice_type:\t" + str(lattice_type))
+    f.write("beta =\t" + str(beta))
+    f.write("U =\t" + str(U))
+    f.write("mu Anderson =\t" + str(hartree_shift))
+    f.write("Nk =\t" + str(Nk))
+    f.write("NN =\t" + str(num_of_neighbours))
+    f.write("Hopping =\t{}". format(t))
+    f.write("Coulomb =\t{}".format(Coulomb))
+    f.write("mu lattice =\t{}".format(Coulomb))
+    if (particle_hole_symm == 1):
+        f.write("Particle - hole symmetry - yes.")
+    else:
+        f.write("Particle - hole symmetry - no.")
+    f.write("sweeps (N_MEAS = 2000) =\t{}".format(sweeps))
+    f.close()
     
 def get_shift_half_filling(dos, Erange, dE):
   if (dE < 0.0):

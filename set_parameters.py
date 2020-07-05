@@ -15,6 +15,9 @@ def set_model_parameters():
     # The sign problem can occure away from half-filling. Don't touch.
     Nk                  = 64       # num. of kpoints in each direction, 64 is better for qmc (Friedrich K.)
     num_of_neighbours   = 3
+    
+    #ct_hub parameters
+    sweeps = 10**10
 
     #############################################
     #                                           #
@@ -24,7 +27,7 @@ def set_model_parameters():
     # t         - value of a hopping integral
     # Coulomb   - value of non-local (intra-site) Coulomb interaction.
     # In papers it figurates as V.
-    
+
     if lattice_type == 'square':
         t       = -0.25
         Coulomb = 0.5
@@ -48,20 +51,41 @@ def set_model_parameters():
         
         particle_hole_symm  = 0
         
-    print("+ - - - - - - - - - - - - - - - +")
-    print("|      Lattice parameters       | ")
-    print("+ - - - - - - - - - - - - - - - +")
+    save_param_file(lattice_type, beta, U, hartree_shift, Nk, num_of_neighbours, t, Coulomb, mu, particle_hole_symm, sweeps)
+    
+    return lattice_type, beta, U, hartree_shift, Nk, num_of_neighbours, t, Coulomb, mu, particle_hole_symm, sweeps
+    
+def save_param_file(lattice_type, beta, U, hartree_shift, Nk, num_of_neighbours, t, Coulomb, mu, particle_hole_symm, sweeps):
+    # -- save parameters in file for the iteration --
     print ("Lattice type is ", lattice_type)
     print ("5*beta*U/(2pi) ~ ", str(int(5*beta*U/(2.*np.pi))))
     print ("mu = {}".format(mu))
     if (particle_hole_symm == 1):
-        print("Particle-hole symmetry - yes.")
+        print("Particle - hole symmetry - yes.")
     else:
-        print("Particle-hole symmetry - no.")
+        print("Particle - hole symmetry - no.")
     
     print("Hopping is {}".format(t))
     print("Coulomb is {}".format(Coulomb))
-    return lattice_type, beta, U, hartree_shift, Nk, num_of_neighbours, t, Coulomb, mu, particle_hole_symm 
+    
+    # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+    f = open("save_model_params.dat", "w")
+    f.write("lattice_type:\t" + str(lattice_type))
+    f.write("beta =\t" + str(beta))
+    f.write("U =\t" + str(U))
+    f.write("mu Anderson =\t" + str(hartree_shift))
+    f.write("Nk =\t" + str(Nk))
+    f.write("NN =\t" + str(num_of_neighbours))
+    f.write("Hopping =\t{}". format(t))
+    f.write("Coulomb =\t{}".format(Coulomb))
+    f.write("mu lattice =\t{}".format(Coulomb))
+    if (particle_hole_symm == 1):
+        f.write("Particle - hole symmetry - yes.")
+    else:
+        f.write("Particle - hole symmetry - no.")
+    f.write("sweeps (N_MEAS = 2000) =\t{}".format(sweeps))
+    f.close()
     
 def get_shift_half_filling(dos, Erange, dE):
   if (dE < 0.0):
@@ -78,3 +102,22 @@ def get_shift_half_filling(dos, Erange, dE):
       break
   print ("Energy shift to obtain half-filling: E_shift = %f"%(Eshift))
   return Eshift
+
+
+def get_van_Hove_filling(dos, Erange, dE):
+  #find maximum
+  NE=len(dos)
+  Evl = [-Erange+x*dE for x in range(0,NE+1)]
+  max=dos[0]
+  maxn=0
+  for n in range (0,NE):
+    if dos[n] >= max:
+      max=dos[n]
+      maxn=n
+  print ("maximum of dos @ E=%f"%Evl[maxn])
+  vhf=0.0
+  N=len(dos)
+  for n in range (0,maxn):
+    vhf += 2*dos[n]*dE #van Hove doping; factor 2 is for spin
+  print ("optimal hole doping: delta ~ %f"%(1.0-vhf))
+  return vhf

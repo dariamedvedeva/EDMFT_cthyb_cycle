@@ -116,7 +116,7 @@ for iteration in range(0, number_of_iterations, 1):
             print("mu = U/2 is implemented in this code and is calculated automatically. ")
             print("You are trying to calculate somethig away from half-filling, that means the sign problem "
                   "can occure.")
-            sys.exit()
+         ##   sys.exit()
         else:
              # run solver if executable file exists
             print ("\n+ - - - - - - - - - - - - - - - +")
