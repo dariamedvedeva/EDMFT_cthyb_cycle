@@ -43,16 +43,15 @@ def init_lambda(w0p, Wp, number_of_freqs, beta):
 def rewrite_Phi_file_for_cthyb_solver(freq, lambda_charge):
     n = len(lambda_charge)
     lambda_spin = np.zeros(n, np.complex)
-    
-#    np.savetxt("Phi.dat", np.column_stack((freq.imag, lambda_charge.real, lambda_charge.imag, lambda_spin.real, lambda_spin.imag)))
-    np.savetxt("Phi_start.dat", np.column_stack((freq.imag, lambda_charge.real, lambda_charge.imag, lambda_spin.real, lambda_spin.imag)))
+    np.savetxt("Phi.dat", np.column_stack((freq.imag, lambda_charge.real, lambda_charge.imag, lambda_spin.real, lambda_spin.imag)))
+    print("File Phi.dat saved.")
 
 
 def construct_hybr_functions(beta, ferm, bos, U, Ek, Vk, w0p, Wp):
 
     frequencies, initial_delta =  init_delta(Ek, Vk, ferm, beta)
-#    np.savetxt("Delta.dat", np.column_stack((frequencies.imag, initial_delta.real, initial_delta.imag)))
-    np.savetxt("Delta_start.dat", np.column_stack((frequencies.imag, initial_delta.real, initial_delta.imag)))
+    np.savetxt("Delta.dat", np.column_stack((frequencies.imag, initial_delta.real, initial_delta.imag)))
+    print("File Delta.dat saved.")
 
     frequencies2, initial_lambda = init_lambda(w0p, Wp, bos, beta)
     rewrite_Phi_file_for_cthyb_solver(frequencies2, initial_lambda)

@@ -28,40 +28,30 @@ import pathes
 import set_parameters
 
 #############################################
-#                                           #
 #            TUNE OF EXECUTION              #
-#                                           #
 #############################################
-
 # You can preset 2 ways to execute: for local execution and on server.
 server          = False
 num_omp_threads = 1
-type_of_calc    = "dmft"
+type_of_calc    = "edmft"
 
 #############################################
-#                                           #
-#                  PATHES                   #
+#                SET PATHES                 #
 #            >  See pathes.py  <            #
-#                                           #
 #############################################
-
 if server:
     path_to_exec_file, num_mpi_threads, path_to_maxent = pathes.get_server_run()
 else:
     path_to_exec_file, num_mpi_threads, path_to_maxent = pathes.get_local_run()
 
 #################################################
-#                                               #
-#        SPECIFICATION OF A MODEL               #
-#                                               #
+#        SPECIFICATION OF THE MODEL             #
 # (1) Copy the file set_parameters_change.py    #
 # (2) Change the name as set_parameters.py      #
 # (3) Set parameters                            #
-#                                               #
 #################################################
 lattice_type, beta, U, hartree_shift, Nk, num_of_neighbours, t, Coulomb, mu, particle_hole_symm, sweeps = \
     set_parameters.set_model_parameters()
-
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 #                                                             #
@@ -76,11 +66,12 @@ number_of_fermionic_freqs_for_fourier   = 1024   # Because of noise we cut the t
 number_of_bosonic_frequencies           = 1024
 number_of_discrete_tau_points           = 4096  # Friedrich - 4096
 
-
-number_of_iterations = 10
+number_of_iterations = 15
 start_time = time.time()
 
-for iteration in range(0, number_of_iterations, 1):
+# - - - - - - - - - - - - -
+start_num_of_it = 0
+for iteration in range(start_num_of_it, number_of_iterations, 1):
     print (" ")
     print ("+ + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + + +")
     print ("\t\t       ITERATION NUMBER ", str(iteration), "")
@@ -113,10 +104,8 @@ for iteration in range(0, number_of_iterations, 1):
     if (os.path.exists(path_to_exec_file)):
         if (hartree_shift != 0.0):
             print("\n > > >  W A R N I N G  < < <")
-            print("mu = U/2 is implemented in this code and is calculated automatically. ")
-            print("You are trying to calculate somethig away from half-filling, that means the sign problem "
-                  "can occure.")
-         ##   sys.exit()
+            print("You applied mu for the Anderson model. In some cases it can brake .")
+#            sys.exit()
         else:
              # run solver if executable file exists
             print ("\n+ - - - - - - - - - - - - - - - +")
@@ -133,7 +122,7 @@ for iteration in range(0, number_of_iterations, 1):
     # 1. Gloc
     iteration_cycle.Gloc(mu, Nk, t, lattice_type, U)
     # 2. Delta
-    mixing_parameter = 0.25
+    mixing_parameter = 0.15
     iteration_cycle.new_delta(mixing_parameter)
 
     #-------------------------------------------------------#
@@ -166,6 +155,8 @@ for iteration in range(0, number_of_iterations, 1):
     tmp.prepare_files_for_new_it(type_of_calc, iteration)
 
     print("Time for one iteration {} min".format(np.round((time.time() - start_time)/60),2))
+    
+    set_parameters.save_param_file(lattice_type, beta, U, hartree_shift, Nk, num_of_neighbours, t, Coulomb, mu, particle_hole_symm, sweeps)
         
 print ("************ Calculation is finished. ************")
 print("Time = {} min".format(np.round((time.time() - start_time)/60),2))

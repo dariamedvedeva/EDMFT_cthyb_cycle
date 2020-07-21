@@ -43,8 +43,8 @@ def run_ct_hyb(path, num_omp_threads, num_mpi_threads, beta, U, mu, N_W, N, numb
     arg.append('100')
     arg.append('--SEED')                  # PRNG seed
     arg.append(str(0))
-    arg.append('--MAX_TIME')              # maximum solver runtime 
-    arg.append(str(10800))
+    arg.append('--MAX_TIME')              # maximum solver runtime. 10800 - 3 hours
+    arg.append(str(3*3600))
     arg.append('--cthyb.MEASURE_freq')    # measure in frequency domain
     arg.append(str(1))
     arg.append('--cthyb.MEASURE_nn')
