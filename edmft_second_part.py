@@ -6,14 +6,11 @@ import retarded_function
 import ct_hyb
 import numpy as np
 import subprocess
-import maxent
-import construct_discrete_hybr_functions
 import os.path
 import sys
 import os
 import time
 import files_and_folders as tmp
-import pathes
 import parameters
 from scipy import integrate
 
@@ -34,9 +31,9 @@ type_of_calc    = "edmft"
 #############################################
 
 if server:
-    path_to_exec_file, num_mpi_threads, path_to_maxent = pathes.get_server_run()
+    path_to_exec_file, num_mpi_threads, path_to_maxent = parameters.get_server_run()
 else:
-    path_to_exec_file, num_mpi_threads, path_to_maxent = pathes.get_local_run()
+    path_to_exec_file, num_mpi_threads, path_to_maxent = parameters.get_local_run()
 
 #############################################
 #                                           #
