@@ -1,7 +1,7 @@
 #!/opt/intel/intelpython2/bin/python
 # edmft.py
 import iteration_cycle
-import discrete_fourier
+import fourier
 import retarded_function
 import ct_hyb
 import numpy as np
@@ -12,9 +12,9 @@ import os.path
 import sys
 import os
 import time
-import temptale as tmp
+import files_and_folders as tmp
 import pathes
-import set_parameters
+import parameters
 from scipy import integrate
 
 #############################################
@@ -44,7 +44,7 @@ else:
 #                                           #
 #############################################
 lattice_type, beta, U, hartree_shift, Nk, num_of_neighbours, t, Coulomb, mu, particle_hole_symm = \
-    set_parameters.set_model_parameters()
+    parameters.set_model_parameters()
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 #                                                             #

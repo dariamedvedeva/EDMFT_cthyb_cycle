@@ -11,9 +11,9 @@ import sys
 import os
 import time
 from scipy import integrate
-import set_parameters
+import parameters
 import h5py
-import discrete_fourier
+import fourier
 import iteration_cycle as it_cyc
 import subprocess
 
@@ -167,7 +167,7 @@ print (" ")
                 #  (1) S E T  P A R A M E T E R S   #
                 # - - - - - - - - - - - - - - - - - #
 lattice_type, beta, U, hartree_shift, Nk, num_of_neighbours, t, Coulomb, mu, particle_hole_symm = \
-set_parameters.set_model_parameters()
+parameters.set_model_parameters()
 # run CT-HYB SEGMENT solver
 # off and make a Fouriet transform into the \tau - space by the first frequencies with smooth data.
 number_of_bosonic_frequencies           = 52

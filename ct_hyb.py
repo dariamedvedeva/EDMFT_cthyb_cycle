@@ -7,7 +7,8 @@ import subprocess
 import os
 
 
-def run_ct_hyb(path, num_omp_threads, num_mpi_threads, beta, U, mu, N_W, N, number_of_fermionic_freqs, type_of_calculation, sweeps):
+def run_ct_hyb(path, num_omp_threads, num_mpi_threads, beta, U, mu, N_W, N,
+               number_of_fermionic_freqs, type_of_calculation, sweeps, time_limit):
     
     os.putenv('OMP_NUM_THREADS', str(int(num_omp_threads)))
     path_for_delta_function = 'Delta_tau_ct_hyb.dat'
@@ -44,7 +45,7 @@ def run_ct_hyb(path, num_omp_threads, num_mpi_threads, beta, U, mu, N_W, N, numb
     arg.append('--SEED')                  # PRNG seed
     arg.append(str(0))
     arg.append('--MAX_TIME')              # maximum solver runtime. 10800 - 3 hours
-    arg.append(str(3*3600))
+    arg.append(str(time_limit))
     arg.append('--cthyb.MEASURE_freq')    # measure in frequency domain
     arg.append(str(1))
     arg.append('--cthyb.MEASURE_nn')

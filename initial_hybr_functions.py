@@ -1,7 +1,7 @@
 
 
 import numpy as np
-import discrete_fourier
+import fourier
 import os
 
 def init_delta(Ek, Vk, number_of_freqs, beta):
@@ -16,7 +16,7 @@ def init_delta(Ek, Vk, number_of_freqs, beta):
         os.abort()
 
     for ind in range(number_of_freqs):
-        w[ind] = discrete_fourier.fermionic_mats(ind, beta) * 1j
+        w[ind] = fourier.fermionic_mats(ind, beta) * 1j
         for orbital_index in range(K):
             Delta[ind] += (np.abs(Vk[orbital_index])**2) / (w[ind] - Ek[orbital_index])
 
@@ -34,7 +34,7 @@ def init_lambda(w0p, Wp, number_of_freqs, beta):
         os.abort()
 
     for ind in range(0, number_of_freqs, 1):
-        v[ind] = discrete_fourier.bosonic_mats(ind, beta) * 1j
+        v[ind] = fourier.bosonic_mats(ind, beta) * 1j
         for orbital_index in range(P):
             Lambda[ind] += 2. * (np.abs(Wp[orbital_index])**2 * w0p[orbital_index]) / ((v[ind]**2 - w0p[orbital_index]**2))
     return v, Lambda

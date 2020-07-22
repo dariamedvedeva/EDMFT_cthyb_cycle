@@ -3,7 +3,7 @@ import numpy as np
 import h5py
 import os
 import sys
-import discrete_fourier
+import fourier
 import shutil
 import smooth_function
 from scipy.interpolate import UnivariateSpline
@@ -445,7 +445,7 @@ def corrections(iw, mu, Delta_omega, Sigma_omega, beta, U):
     g_omega = 1.0 / (iw + mu - Delta_omega - Sigma_omega)
 #    np.savetxt("G_OMEGA.dat", np.column_stack((iw.imag, g_omega.real, g_omega.imag)))
     # 2. High frequency corrections
-    X = discrete_fourier.chi(iw, Delta_omega)
+    X = fourier.chi(iw, Delta_omega)
     analytical_part = np.zeros((iw.shape),dtype=np.complex)
     analytical_part = X / iw
     g_omega_minus_analytical_part = g_omega - analytical_part

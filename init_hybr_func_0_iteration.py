@@ -1,7 +1,7 @@
 import initial_hybr_functions
-import set_parameters
+import parameters
 lattice_type, beta, U, hartree_shift, Nk, num_of_neighbours, t, Coulomb, mu, particle_hole_symm, sweeps = \
-set_parameters.set_model_parameters()
+parameters.set_model_parameters()
 
 beta = 50.
 # Because of noise we cut the tail of Delta (fermionic hybr. function) off and make a Fouriet transform into the \tau - space by the first frequencies with smooth data.
