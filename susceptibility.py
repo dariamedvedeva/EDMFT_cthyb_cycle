@@ -7,7 +7,7 @@ import ct_hyb
 import numpy as np
 import subprocess
 import maxent
-import initial_hybr_functions
+import construct_discrete_hybr_functions
 import os.path
 import sys
 import os

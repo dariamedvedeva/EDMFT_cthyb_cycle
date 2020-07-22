@@ -17,9 +17,6 @@ import fourier
 import retarded_function
 import ct_hyb
 import numpy as np
-import subprocess
-import initial_hybr_functions
-import os.path
 import sys
 import os
 import time
