@@ -60,10 +60,10 @@ number_of_bosonic_frequencies           = 1024
 number_of_discrete_tau_points           = 4096  # Friedrich - 4096
 
 
-number_of_iterations = 1
+max_it_num = 1
 start_time = time.time()
 
-for iteration in range(0, number_of_iterations, 1):
+for iteration in range(0, max_it_num, 1):
     print (" ")
     print ("++++++++++++++++++++++++++")
     print ("+  EDMFT - consistency   + ")

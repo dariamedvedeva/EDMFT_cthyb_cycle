@@ -17,14 +17,11 @@ import fourier
 import iteration_cycle as it_cyc
 import subprocess
 
-def read_function(filename, type):
+def read_real_function(filename):
     # read file
     D = np.loadtxt(filename)
     argument = D[:,0]
-    if type == 'charge':
-        function = D[:,1]
-    elif type == 'spin':
-        function = D[:,3]
+    function = D[:,1]
     return argument, function
     
 def create_input_file_maxent(beta, data_file_name_for_maxent, num_of_data_points, PARTICLE_HOLE_SYMMETRY, min_w, max_w, max_iters_for_fitting):
@@ -46,7 +43,7 @@ def create_input_file_maxent(beta, data_file_name_for_maxent, num_of_data_points
 
     # num of output frequencies
     file_with_parameters.write("NFREQ=")
-    file_with_parameters.write(str(2000))
+    file_with_parameters.write(str(1000))
     file_with_parameters.write("\n")
 
     # G(iw)
@@ -63,18 +60,18 @@ def create_input_file_maxent(beta, data_file_name_for_maxent, num_of_data_points
     file_with_parameters.write("\n")
 
     # Minimum frequency
-    file_with_parameters.write("OMEGA_MIN=")
-    file_with_parameters.write(str(min_w))
-    file_with_parameters.write("\n")
+#    file_with_parameters.write("OMEGA_MIN=")
+#    file_with_parameters.write(str(min_w))
+#    file_with_parameters.write("\n")
 
     # Maximum frequency
-    file_with_parameters.write("OMEGA_MAX=")
-    file_with_parameters.write(str(max_w))
-    file_with_parameters.write("\n")
+#    file_with_parameters.write("OMEGA_MAX=")
+#    file_with_parameters.write(str(max_w))
+#    file_with_parameters.write("\n")
     
     # Type of frequency grid (default value: Lorentzian) Quadratic
-#    file_with_parameters.write("FREQUENCY_GRID=Linear")
-#    file_with_parameters.write("\n")
+    file_with_parameters.write("FREQUENCY_GRID=Lorentzian")
+    file_with_parameters.write("\n")
 
     # log_min for log grid (default value: 0.0001)
 #    file_with_parameters.write("LOG_MIN=")
@@ -97,13 +94,13 @@ def create_input_file_maxent(beta, data_file_name_for_maxent, num_of_data_points
 #    file_with_parameters.write("\n")
 
     # Maximum Iterations for the fitting routine (default value: 1000)
-#    file_with_parameters.write("MAX_IT=")
-#    file_with_parameters.write(str(max_iters_for_fitting))
-#    file_with_parameters.write("\n")
+    file_with_parameters.write("MAX_IT=")
+    file_with_parameters.write(str(max_iters_for_fitting))
+    file_with_parameters.write("\n")
 
     # Number of alpha samples (default value: 60)
-    file_with_parameters.write("N_ALPHA=100")
-    file_with_parameters.write("\n")
+#    file_with_parameters.write("N_ALPHA=100")
+#    file_with_parameters.write("\n")
     
 #    file_with_parameters.write("ALPHA_MIN=0.005")
 #    file_with_parameters.write("\n")
@@ -124,23 +121,24 @@ def create_input_file_maxent(beta, data_file_name_for_maxent, num_of_data_points
     file_with_parameters.close()
 
 def construct_Xw_file_for_maxent(beta, filename):
-#    freq, func = it_cyc.read_freq_function("Xw.dat")
-    type = 'charge'
-    freq, func = read_function("Xw.dat", type)
+    freq, func = it_cyc.read_freq_function("Xw.dat")
     static_error_re = 0.0001
-    static_error_im = 10**(-1)
+    static_error_im = 10**(-16)
     error_array_re = np.zeros(func.shape, np.float)
     error_array_im = np.zeros(func.shape, np.float)
     for i in range(len(error_array_re)):
         error_array_re[i] = static_error_re
         error_array_im[i] = static_error_im
         
-    np.savetxt(filename, np.column_stack((freq.imag, func.real, error_array_re, func.imag, error_array_im)))
+    np.savetxt(filename, np.column_stack((freq.imag, np.abs(func.real), error_array_re, np.abs(func.imag), error_array_im)))
 
 def run(path_to_maxent, beta, filename_for_maxent, local, number_of_fermionic_freqs, particle_hole_symm, min_w, max_w, max_iterations_for_fitting):
+    
     # in.param
     create_input_file_maxent(beta, filename_for_maxent, number_of_fermionic_freqs, particle_hole_symm, min_w, max_w, max_iterations_for_fitting)
+    
     construct_Xw_file_for_maxent(beta, filename_for_maxent)
+    
     subprocess.call([path_to_maxent, "in.param"])
 
 
@@ -168,29 +166,28 @@ print (" ")
                 # - - - - - - - - - - - - - - - - - #
                 #  (1) S E T  P A R A M E T E R S   #
                 # - - - - - - - - - - - - - - - - - #
+lattice_type, beta, U, hartree_shift, Nk, num_of_neighbours, t, Coulomb, mu, particle_hole_symm = \
 parameters.set_model_parameters()
-lattice_type, beta, U, hartree_shift, Nk, num_of_neighbours, t, Coulomb, mu, particle_hole_symm, sweeps, time_limit,  delta_mix, lambda_mix, number_of_iterations, start_from_it = \
-parameters.get_model_parameters()
 # run CT-HYB SEGMENT solver
 # off and make a Fouriet transform into the \tau - space by the first frequencies with smooth data.
-number_of_bosonic_frequencies           = 102
+number_of_bosonic_frequencies           = 52
 start_time = time.time()
 
 filename_for_maxent = 'Xw_for_maxent.dat'
 # local = True  --> use Gloc.dat (local    Green's function)
 # local = False --> use Gw.dat   (impurity Green's function)
 local = False
-min_w = -2.0
-max_w = 2.0
-max_iterations_for_fitting = 8000
+min_w = -10.0
+max_w = 10.0
+max_iterations_for_fitting = 4000
 
                             # - - - - - -  #
                             #  (2) R U N   #
                             # - - - - - -  #
 
-NORM = -0.145809 # Look at output and put it here. I am still not sure how it works
+NORM = 0.14509 # Look at output and put it here. I am still not sure how it works
 run(path_to_maxent, beta, filename_for_maxent, local, number_of_bosonic_frequencies, particle_hole_symm, min_w, max_w, max_iterations_for_fitting)
-#os.system("mv in.out.maxspec.dat in.out.maxspec_Xw.dat")
+os.system("mv in.out.maxspec.dat in.out.maxspec_Xw.dat")
 
                 # - - - - - - - - - - - - - - - - - -  #
                 #  (3) C O N S T R U C T X_LOC(w, q)   #

@@ -35,13 +35,13 @@ def set_model_parameters():
     global lattice_type, beta, U, hartree_shift, Nk, num_of_neighbours
     global t, Coulomb, mu, particle_hole_symm, sweeps
     global time_limit, delta_mix, lambda_mix
-    global number_of_iterations, start_from_it
+    global max_it_num, start_from_it
     lattice_type        = 'triangular' # write square || triangular
     beta                = 100.     # inversive temperature as \beta = 1./T
-    U                   = 2.0      # local (inter-site) Hubbard repulsion
+    U                   = 2.5      # local (inter-site) Hubbard repulsion
     #mu                  = U/2.   # for a half filling U / 2. In case of square lattice it should be mu = U/2. !!!!
     #mu                  = 0.8 * t
-    hartree_shift       = 0.0      # Hartree shift (\mu in ct-hyb). for a half filling U / 2. In the tutorial it is written
+    hartree_shift       = -0.1      # Hartree shift (\mu in ct-hyb). for a half filling U / 2. In the tutorial it is written
     # that mu = U/2 isn't implemented, but it is (!!!). Automatically mu = U/2, for half-filling.
     # The sign problem can occure away from half-filling. Don't touch.
     Nk                  = 64       # num. of kpoints in each direction, 64 is better for qmc (Friedrich K.)
@@ -53,12 +53,12 @@ def set_model_parameters():
     time_limit = hours_max*60*60 # in seconds
 
     #mixing_parameters
-    delta_mix  = 0.25
-    lambda_mix = 0.45
+    delta_mix  = 0.10
+    lambda_mix = 0.30
 
     # iterations
-    number_of_iterations = 7
-    start_from_it = 1
+    max_it_num = 1
+    start_from_it = 4
     #############################################
     #                                           #
     #      STATIC PARAMETERS OF A MODEL         #
@@ -76,7 +76,7 @@ def set_model_parameters():
 
     elif lattice_type == 'triangular':
         t    = np.empty(num_of_neighbours, dtype=np.float)
-        t[0] = 0.25
+        t[0] = 0.233
         t[1] = 0.0
         t[2] = 0.0
 
@@ -97,7 +97,7 @@ def get_model_parameters():
     global lattice_type, beta, U, hartree_shift, Nk, num_of_neighbours
     global t, Coulomb, mu, particle_hole_symm, sweeps
     global time_limit, delta_mix, lambda_mix
-    global number_of_iterations, start_from_it
+    global max_it_num, start_from_it
 
     print ("Lattice type is ", lattice_type)
     print ("5*beta*U/(2pi) ~ ", str(int(5*beta*U/(2.*np.pi))))
@@ -112,7 +112,7 @@ def get_model_parameters():
     # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
     return lattice_type, beta, U, hartree_shift, Nk, num_of_neighbours, t, Coulomb, mu, particle_hole_symm, \
-           sweeps, time_limit,  delta_mix, lambda_mix, number_of_iterations, start_from_it
+           sweeps, time_limit, delta_mix, lambda_mix, max_it_num, start_from_it
 
 def save_param_file(lattice_type, beta, U, hartree_shift, Nk, num_of_neighbours, t, Coulomb, mu, particle_hole_symm,
                     sweeps, time_limit,  delta_mix, lambda_mix):

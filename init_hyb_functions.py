@@ -56,7 +56,7 @@ import fourier
 
 parameters.set_model_parameters()
 lattice_type, beta, U, hartree_shift, Nk, num_of_neighbours, t, Coulomb, mu, particle_hole_symm, \
-sweeps, time_limit, delta_mix, lambda_mix, number_of_iterations, start_from_it \
+sweeps, time_limit, delta_mix, lambda_mix, max_it_num, start_from_it \
     = parameters.get_model_parameters()
 
 beta = 100.
