@@ -1,36 +1,37 @@
 import numpy as np
 #############################################
 #                                           #
-#        SPECIFICATION OF A MODEL           #
+#           MODEL PARAMETERS                #
 #                                           #
 #############################################
 
-lattice_type        = 'triangular' # write square || triangular
-beta                = 1.0     # inversive temperature as \beta = 1./T
-U                   = 1.0      # local (inter-site) Hubbard repulsion
-#mu                  = U/2.   # for a half filling U / 2. In case of square lattice it should be mu = U/2. !!!!
-#mu                  = 0.8 * t
-hartree_shift       = 0.0      # Hartree shift (\mu in ct-hyb). for a half filling U / 2. In the tutorial it is written
-# that mu = U/2 isn't implemented, but it is (!!!). Automatically mu = U/2, for half-filling.
-# The sign problem can occure away from half-filling. Don't touch.
-Nk                  = 64       # num. of kpoints in each direction, 64 is better for qmc (Friedrich K.)
+#  Default parameters. To set parameters - change values in set_model_parameters()
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+lattice_type        = 'triangular'  # write square || triangular
+beta                = 1.0           # inversive temperature as \beta = 1./T
+U                   = 1.0           # local (inter-site) Hubbard repulsion
+hartree_shift       = 0.0           # Hartree shift (\mu in ct-hyb). for a half filling U / 2. In the tutorial it is written
+                                    # that mu = U/2 isn't implemented, but it is (!!!).
+Nk                  = 64            # num. of kpoints in each direction, 64 is better for qmc (Friedrich K.)
 num_of_neighbours   = 3
 
-# Hubbard model parameters
+#  Hubbard model parameters
 t    = np.empty(num_of_neighbours, dtype=np.float)
 t[0] = t[1] = t[2] = 0.0
 Coulomb     = np.empty(num_of_neighbours, dtype=np.float)
-Coulomb[0] = Coulomb[1] = Coulomb[2] = 0.0
+Coulomb[0]  = Coulomb[1] = Coulomb[2] = 0.0
 
-#ct_hub parameters
+#  ct_hub parameters
 sweeps     = 10**10          # 10**8 .. 10**10 is enough
 hours_max  = 3               # max hours
 time_limit = hours_max*60*60 # in seconds
 
-#mixing_parameters
+#  mixing_parameters
 delta_mix  = 0.1
 lambda_mix = 0.6
 
+#  SET PARAMETERS
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 def set_model_parameters():
     global lattice_type, beta, U, hartree_shift, Nk, num_of_neighbours
     global t, Coulomb, mu, particle_hole_symm, sweeps
@@ -38,27 +39,30 @@ def set_model_parameters():
     global max_it_num, start_from_it
     lattice_type        = 'triangular' # write square || triangular
     beta                = 100.     # inversive temperature as \beta = 1./T
-    U                   = 2.5      # local (inter-site) Hubbard repulsion
+    U                   = 5.16      # local (inter-site) Hubbard repulsion
     #mu                  = U/2.   # for a half filling U / 2. In case of square lattice it should be mu = U/2. !!!!
     #mu                  = 0.8 * t
-    hartree_shift       = -0.1      # Hartree shift (\mu in ct-hyb). for a half filling U / 2. In the tutorial it is written
+    hartree_shift       = 0.0      # Hartree shift (\mu in ct-hyb). for a half filling U / 2. In the tutorial it is written
     # that mu = U/2 isn't implemented, but it is (!!!). Automatically mu = U/2, for half-filling.
     # The sign problem can occure away from half-filling. Don't touch.
     Nk                  = 64       # num. of kpoints in each direction, 64 is better for qmc (Friedrich K.)
     num_of_neighbours   = 3
 
     #ct_hub parameters
-    sweeps     = 10**10          # 10**8 .. 10**10 is enough
+    sweeps     = 10**10          # 10**8 .. 10**11
     hours_max  = 3               # max hours
     time_limit = hours_max*60*60 # in seconds
 
     #mixing_parameters
-    delta_mix  = 0.10
-    lambda_mix = 0.30
+    delta_mix  = 0.00
+    lambda_mix = 0.70
 
     # iterations
-    max_it_num = 1
-    start_from_it = 4
+    max_it_num = 4
+    start_from_it = 1
+    
+    if (start_from_it > max_it_num):
+        print ("The number of start iteration is less than the number of the last one.")
     #############################################
     #                                           #
     #      STATIC PARAMETERS OF A MODEL         #
@@ -68,30 +72,21 @@ def set_model_parameters():
     # Coulomb   - value of non-local (intra-site) Coulomb interaction.
     # In papers it figurates as V.
 
-    if lattice_type == 'square':
-        t       = 0.25
-        Coulomb = 0.5
-        mu      = U / 2.
-        particle_hole_symm  = 1
+    t    = np.empty(num_of_neighbours, dtype=np.float)
+    t[0] = -0.233
+    t[1] = 0.0
+    t[2] = 0.0
 
-    elif lattice_type == 'triangular':
-        t    = np.empty(num_of_neighbours, dtype=np.float)
-        t[0] = 0.233
-        t[1] = 0.0
-        t[2] = 0.0
+    Coulomb     = np.empty(num_of_neighbours, dtype=np.float)
+    Coulomb[0]  = 1.0 #2.46
+    Coulomb[1]  = 0.0
+    Coulomb[2]  = 0.0
 
-        Coulomb     = np.empty(num_of_neighbours, dtype=np.float)
-        Coulomb[0]  = 0.0
-        Coulomb[1]  = 0.0
-        Coulomb[2]  = 0.0
-
-#        mu =  0.8 * t[0]
-        mu = 0.0
-
-        particle_hole_symm  = 0
-
+    mu = 0.0
+    particle_hole_symm  = 0
     save_param_file(lattice_type, beta, U, hartree_shift, Nk, num_of_neighbours,
                     t, Coulomb, mu, particle_hole_symm, sweeps, time_limit, delta_mix, lambda_mix)
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
 def get_model_parameters():
     global lattice_type, beta, U, hartree_shift, Nk, num_of_neighbours
@@ -101,6 +96,7 @@ def get_model_parameters():
 
     print ("Lattice type is ", lattice_type)
     print ("5*beta*U/(2pi) ~ ", str(int(5*beta*U/(2.*np.pi))))
+    print ("Required number of N_tau >= {}".format(5. * U * beta))
     print ("mu = {}".format(mu))
     if (particle_hole_symm == 1):
         print("Particle - hole symmetry - yes.")

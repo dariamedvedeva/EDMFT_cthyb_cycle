@@ -9,6 +9,7 @@ print("# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #\n")
 print("Developed by Medvedeva D. 2018 - 2020")
 print("For any questions: medvedeva.ds@gmail.com  ")
 print("Skype: daryacooper")
+print("To set parameters, open parameters.py.")
 print("Information about calculation will be saved in log.file(a).\n")
 print("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - \n\n")
 
@@ -34,7 +35,7 @@ def get_date_time():
 # You can preset 2 ways to execute: for local execution and on server.
 server          = False
 num_omp_threads = 1
-type_of_calc    = "dmft"
+type_of_calc    = "edmft"
 
 #############################################
 #                SET PATHES                 #
@@ -104,7 +105,7 @@ for iteration in range(start_it, number_of_max_it, 1):
     print (" ")
 
     log_file = open("log.file", "a")
-    log_file.write("Iteration # {} is started at {}\n".format(iteration, get_date_time()))
+    log_file.write("\nIteration # {} is started at {}\n".format(iteration, get_date_time()))
     log_file.close()
 
     #-------------------------------------------------------#
@@ -161,7 +162,6 @@ for iteration in range(start_it, number_of_max_it, 1):
     # 2. Delta
     mixing_parameter = delta_mix
     iteration_cycle.new_delta(mixing_parameter)
-
     #-------------------------------------------------------#
     #               5. New Lambda function                  #
     #-------------------------------------------------------#

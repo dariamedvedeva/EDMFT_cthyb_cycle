@@ -10,6 +10,11 @@ import os
 def run_ct_hyb(path, num_omp_threads, num_mpi_threads, beta, U, mu, N_W, N,
                number_of_fermionic_freqs, type_of_calculation, sweeps, time_limit):
     
+# Simple check of parameters
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+# Common parameters
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     os.putenv('OMP_NUM_THREADS', str(int(num_omp_threads)))
     path_for_delta_function = 'Delta_tau_ct_hyb.dat'
     arg_mpi = ['mpirun', '-np', str(int(num_mpi_threads))]
