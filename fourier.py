@@ -131,7 +131,7 @@ def compute(beta, num_of_time_points, number_of_freqs, number_of_freqs_for_fouri
 
     # 3.5 Check that Delta_tau < 0
     error_text = 'Numerical problem: Delta(tau) > 0.0. \n' \
-                 'Recommendations: use smaller mixing parameter && increase the number of sweeps.\n'
+                 'Recommendations: use smaller mixing parameter ||  increase the number of sweeps || increase number of points for minimization. \n'
     def positive_check(val, error):
         if (val >= 0.0):
             print(error_text)

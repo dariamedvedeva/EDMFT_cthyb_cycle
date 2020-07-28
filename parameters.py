@@ -30,6 +30,13 @@ time_limit = hours_max*60*60 # in seconds
 delta_mix  = 0.1
 lambda_mix = 0.6
 
+#  parameters for minimization
+num_of_used_freqs = 25
+bath_size = 9
+filename = 'Delta_new.dat'
+params = [-5.0,-2.5,-1.5,-0.5,0.0,0.5,1.5,2.5,5.0,0.5,0.1,0.5,0.3,0.5,0.4,0.6,0.72,0.5]
+filename_output_delt_min = 'Delta_new_minimized.dat'
+
 #  SET PARAMETERS
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 def set_model_parameters():
@@ -87,6 +94,18 @@ def set_model_parameters():
     save_param_file(lattice_type, beta, U, hartree_shift, Nk, num_of_neighbours,
                     t, Coulomb, mu, particle_hole_symm, sweeps, time_limit, delta_mix, lambda_mix)
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+def set_model_parameters_for_minimization_delta():
+    global num_of_used_freqs, bath_size, filename, params, filename_output_delt_min
+    num_of_used_freqs = 50
+    bath_size = 9
+    filename = 'Delta_new.dat'
+    params = [-5.0,-2.5,-1.5,-0.5,0.0,0.5,1.5,2.5,5.0,0.5,0.1,0.5,0.3,0.5,0.4,0.6,0.72,0.5]
+    filename_output_delt_min = 'Delta_new_minimized.dat'
+
+def get_model_parameters_for_minimization_delta():
+     global num_of_used_freqs, bath_size, filename, params, filename_output_delt_min     
+     return num_of_used_freqs, bath_size, filename, params, filename_output_delt_min
 
 def get_model_parameters():
     global lattice_type, beta, U, hartree_shift, Nk, num_of_neighbours
@@ -170,8 +189,8 @@ def get_van_Hove_filling(dos, Erange, dE):
   return vhf
 
 def get_server_run():
-    path_to_exec_file   = '/storage/praha1/home/medvedeva/workspace/other_codes/CT_HYB_SEGMENT/CT-HYB-SEGMENT/build/alps_cthyb'
-    num_mpi_threads     = 16
+    path_to_exec_file   = 'shalalalala'
+    num_mpi_threads     = 12
     path_to_maxent      = ''
     print_sources(path_to_exec_file, num_mpi_threads, path_to_maxent)
     return path_to_exec_file, num_mpi_threads, path_to_maxent

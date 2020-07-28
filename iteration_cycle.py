@@ -10,6 +10,7 @@ from scipy.interpolate import UnivariateSpline
 from pylab import *
 from scipy.optimize import curve_fit
 import delta_min
+from parameters import set_model_parameters_for_minimization_delta
 
 global sqrt32, sqrt3
 sqrt32 = np.sqrt(3.)/2.
@@ -422,11 +423,7 @@ def new_delta(mix_par):
     # minimization --> perfect.
     # Should be done twice.
     print(" >> minimization")
-    num_of_used_freqs = 25
-    bath_size = 9
-    filename = 'Delta_new.dat'
-    params = [-5.0,-2.5,-1.5,-0.5,0.0,0.5,1.5,2.5,5.0,0.5,0.1,0.5,0.3,0.5,0.4,0.6,0.72,0.5]
-#    params = [-44.569,-50.354,-10.446,-4.818,-0.211,0.0,0.261,6.253,71.805,0.0,0.0,0.0,0.205,0.067,0.072,0.183,0.0,0.81]
+    num_of_used_freqs, bath_size, filename, params, filename_output = get_model_parameters_for_minimization_delta()
     D2 = delta_min.DeltaMin(filename, bath_size, num_of_used_freqs, params)
     coeffs2 = D2.minimize("delta") # coeffs[E ... , V ...]
     coeffs2[bath_size : bath_size *2] = abs(coeffs2[bath_size : bath_size *2])
@@ -434,8 +431,7 @@ def new_delta(mix_par):
     print(*np.around(coeffs2, decimals=3), sep = ",")
     
     minimized_function  = D2.delta_model(frequencies.imag, coeffs2)
-    filename = 'Delta_new_minimized.dat'
-    np.savetxt(filename, np.column_stack((frequencies.imag, minimized_function.real, minimized_function.imag)))
+    np.savetxt(filename_output, np.column_stack((frequencies.imag, minimized_function.real, minimized_function.imag)))
     print("Minimized Delta function was saved into the file " + filename + ".\n" )
     # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - #
     return 0

@@ -33,9 +33,9 @@ def get_date_time():
 #            TUNE OF EXECUTION              #
 #############################################
 # You can preset 2 ways to execute: for local execution and on server.
-server          = False
+server          = True
 num_omp_threads = 1
-type_of_calc    = "edmft"
+type_of_calc    = "dmft"
 
 #############################################
 #                SET PATHES                 #
