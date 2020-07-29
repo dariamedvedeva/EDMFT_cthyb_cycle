@@ -45,8 +45,8 @@ def set_model_parameters():
     global time_limit, delta_mix, lambda_mix
     global max_it_num, start_from_it
     lattice_type        = 'triangular' # write square || triangular
-    beta                = 100.     # inversive temperature as \beta = 1./T
-    U                   = 5.16      # local (inter-site) Hubbard repulsion
+    beta                = 50.     # inversive temperature as \beta = 1./T
+    U                   = 1.0      # local (inter-site) Hubbard repulsion
     #mu                  = U/2.   # for a half filling U / 2. In case of square lattice it should be mu = U/2. !!!!
     #mu                  = 0.8 * t
     hartree_shift       = 0.0      # Hartree shift (\mu in ct-hyb). for a half filling U / 2. In the tutorial it is written
@@ -56,12 +56,12 @@ def set_model_parameters():
     num_of_neighbours   = 3
 
     #ct_hub parameters
-    sweeps     = 10**10          # 10**8 .. 10**11
+    sweeps     = 10**8          # 10**8 .. 10**11
     hours_max  = 3               # max hours
     time_limit = hours_max*60*60 # in seconds
 
     #mixing_parameters
-    delta_mix  = 0.00
+    delta_mix  = 0.70
     lambda_mix = 0.70
 
     # iterations

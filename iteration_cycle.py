@@ -10,7 +10,7 @@ from scipy.interpolate import UnivariateSpline
 from pylab import *
 from scipy.optimize import curve_fit
 import delta_min
-from parameters import set_model_parameters_for_minimization_delta
+from parameters import get_model_parameters_for_minimization_delta
 
 global sqrt32, sqrt3
 sqrt32 = np.sqrt(3.)/2.
