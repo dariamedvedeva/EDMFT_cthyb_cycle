@@ -59,7 +59,6 @@ lattice_type, beta, U, hartree_shift, Nk, num_of_neighbours, t, Coulomb, mu, par
 sweeps, time_limit, delta_mix, lambda_mix, max_it_num, start_from_it \
     = parameters.get_model_parameters()
 
-beta = 100.
 # Because of noise we cut the tail of Delta (fermionic hybr. function) off and make a Fouriet transform into the \tau - space by the first frequencies with smooth data.
 number_of_fermionic_freqs               = 1024
 number_of_fermionic_freqs_for_fourier   = 1024   # Because of noise we cut the tail of Delta (fermionic hybr. function)
