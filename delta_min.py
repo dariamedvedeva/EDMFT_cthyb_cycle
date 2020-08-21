@@ -61,6 +61,12 @@ class DeltaMin:
       Delta = Delta + coeffs[i + self.bath] * coeffs[i + self.bath] / (t * 1.j - coeffs[i])
     return Delta
 
+  def delta_model_real(self, t, delta, coeffs):
+     Delta = 0.0
+     for i in range(self.bath):
+       Delta = Delta + coeffs[i + self.bath] * coeffs[i + self.bath] / (t + 1j * delta - coeffs[i])
+     return Delta
+
   def delta_model_serias(self, coeffs):
     t = self.omega
     Delta = np.zeros(len(t), np.complex64)

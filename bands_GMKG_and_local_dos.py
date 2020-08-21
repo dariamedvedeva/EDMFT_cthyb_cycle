@@ -32,82 +32,94 @@ def func_complex_function(filename):
     return freq, func
 
 def interaction_GMKG(Nk, lattice_type, param):
-    kpoints = np.array([[[x, y] for x in range(Nk)] for y in range(Nk)]).reshape((Nk * Nk, 2))
-    kpoints_coordinates = np.zeros((Nk*Nk, 2), dtype = np.float)
-    GM_int = np.zeros(Nk * Nk, dtype = np.float)
-    MK_int = np.zeros(Nk * Nk, dtype = np.float)
-    KG_int = np.zeros(Nk * Nk, dtype = np.float)
+#    kpoints = np.array([[[x, y] for x in range(Nk)] for y in range(Nk)]).reshape((Nk * Nk, 2))
+#    kpoints_coordinates = np.zeros((Nk*Nk, 2), dtype = np.float)
+#    GM_int = np.zeros(Nk * Nk, dtype = np.float)
+#    MK_int = np.zeros(Nk * Nk, dtype = np.float)
+#    KG_int = np.zeros(Nk * Nk, dtype = np.float)
+#
+#    b1, b2, b3 = iteration_cycle.get_b_vectors(lattice_type)
+#    kstep_x, kstep_y = iteration_cycle.get_kstep(lattice_type, Nk)
+#
+#    point_x = []
+#    point_y = []
+#    interaction = []
+#    point_x_MK = []
+#    point_y_MK = []
+#    int_MK = []
+#
+#    for k in range(Nk * Nk):
+#        vec_ = [0.0, 0.0]
+#        for i in range(2):
+#            if (lattice_type == "square"):
+#                kpoints_coordinates[k][i] = kpoints[k][0] * b1[i]/ (Nk - 1) + kpoints[k][1] * b2[i] / (Nk - 1)
+#            elif (lattice_type == "triangular"):
+#                kpoints_coordinates[k][i] = kpoints[k][0] * b1[i]/ (Nk - 1) + kpoints[k][1] * b2[i] / (Nk - 1)
+#
+#    x_boundary = 0.0
+#    y_boundary = 0.0
+#    i = 0
+#    for k in kpoints_coordinates:
+#        # TRIANG
+#        if lattice_type == 'triangular':
+#            k_x = k[0]
+#            k_y = k[1]
+#
+#            x_coord = k_x
+#            y_coord = k_y
+#
+#            if (x_coord == 0.0) and (y_coord >= 0.0) and (y_coord < 2.*np.pi/sqrt3):
+#                GM_int[i]  = 2. * param[0] * ( np.cos(x_coord) + np.cos(0.5 * x_coord + sqrt32 * y_coord) + np.cos(0.5 * x_coord - sqrt32 * y_coord) )
+#                GM_int[i] += 2. * param[1] * ( np.cos(sqrt3 * y_coord) + np.cos(3./2. * x_coord + sqrt32 * y_coord) + np.cos(3./2. * x_coord - sqrt32 * y_coord) )
+#                GM_int[i] += 2. * param[2] * ( np.cos(2. * x_coord) + np.cos(x_coord + sqrt3 * y_coord) + np.cos(x_coord - sqrt3 * y_coord) )
+#                interaction.append(GM_int[i])
+#                point_x.append(x_coord)
+#                point_y.append(y_coord)
+#                i += 1
+#
+#            elif (abs(y_coord - 2.* np.pi/sqrt3) <= 0.001) and (x_coord >= 0.0) and (x_coord <= 2.*np.pi/3.):
+#                MK_int[i]  = 2. * param[0] * ( np.cos(x_coord) + np.cos(0.5 * x_coord + sqrt32 * y_coord) + np.cos(0.5 * x_coord - sqrt32 * y_coord) )
+#                MK_int[i] += 2. * param[1] * ( np.cos(sqrt3 * y_coord) + np.cos(3./2. * x_coord + sqrt32 * y_coord) + np.cos(3./2. * x_coord - sqrt32 * y_coord) )
+#                MK_int[i] += 2. * param[2] * ( np.cos(2. * x_coord) + np.cos(x_coord + sqrt3 * y_coord) + np.cos(x_coord - sqrt3 * y_coord) )
+#                int_MK.append(MK_int[i])
+#                point_x_MK.append(x_coord)
+#                point_y_MK.append(y_coord)
+#                i += 1
+#
+#    for j in range(len(point_x_MK)):
+#        if j !=0 : # it shouldn't be here, but don't touch it (Nb2S)
+#            point_x.append(point_x_MK[-1-j])
+#            point_y.append(point_y_MK[-1-j])
+#            interaction.append(int_MK[-1-j])
+#
+#
+#    x_coord =  2.*np.pi / 3.
+#    while x_coord >= 0.0:
+#        x_coord -= kstep_x
+#        if (x_coord < 0.0):
+#            break
+#        y_coord = x_coord * sqrt3
+#
+#        KG_int[i]  = 2. * param[0] * ( np.cos(x_coord) + np.cos(0.5 * x_coord + sqrt32 * y_coord) + np.cos(0.5 * x_coord - sqrt32 * y_coord) )
+#        KG_int[i] += 2. * param[1] * ( np.cos(sqrt3 * y_coord) + np.cos(3./2. * x_coord + sqrt32 * y_coord) + np.cos(3./2. * x_coord - sqrt32 * y_coord) )
+#        KG_int[i] += 2. * param[2] * ( np.cos(2. * x_coord) + np.cos(x_coord + sqrt3 * y_coord) + np.cos(x_coord - sqrt3 * y_coord) )
+#        point_x.append(x_coord)
+#        point_y.append(y_coord)
+#        interaction.append(KG_int[i])
+#        i += 1
+
+    file_with_points_coordinates = 'band_path.txt'
+    point_x, point_y = read_real_function(file_with_points_coordinates)
+    point_x *= 2. * np.pi
+    point_y *= 2. * np.pi
+    interaction = np.zeros(len(point_x), np.float)
+    for i in range(len(point_x)):
+        x_coord = point_x[i]
+        y_coord = point_y[i]
+        interaction[i]  = 2. * param[0] * ( np.cos(x_coord) + np.cos(0.5 * x_coord + sqrt32 * y_coord) + np.cos(0.5 * x_coord - sqrt32 * y_coord) )
+        interaction[i] += 2. * param[1] * ( np.cos(sqrt3 * y_coord) + np.cos(3./2. * x_coord + sqrt32 * y_coord) + np.cos(3./2. * x_coord - sqrt32 * y_coord) )
+        interaction[i] += 2. * param[2] * ( np.cos(2. * x_coord) + np.cos(x_coord + sqrt3 * y_coord) + np.cos(x_coord - sqrt3 * y_coord) )
     
-    b1, b2, b3 = iteration_cycle.get_b_vectors(lattice_type)
-    kstep_x, kstep_y = iteration_cycle.get_kstep(lattice_type, Nk)
-   
-    point_x = []
-    point_y = []
-    interaction = []
-    point_x_MK = []
-    point_y_MK = []
-    int_MK = []
-    
-    for k in range(Nk * Nk):
-        vec_ = [0.0, 0.0]
-        for i in range(2):
-            if (lattice_type == "square"):
-                kpoints_coordinates[k][i] = kpoints[k][0] * b1[i]/ (Nk - 1) + kpoints[k][1] * b2[i] / (Nk - 1)
-            elif (lattice_type == "triangular"):
-                kpoints_coordinates[k][i] = kpoints[k][0] * b1[i]/ (Nk - 1) + kpoints[k][1] * b2[i] / (Nk - 1)
-    
-    x_boundary = 0.0
-    y_boundary = 0.0
-    i = 0
-    for k in kpoints_coordinates:
-        # TRIANG
-        if lattice_type == 'triangular':
-            k_x = k[0]
-            k_y = k[1]
-            
-            x_coord = k_x
-            y_coord = k_y
-            
-            if (x_coord == 0.0) and (y_coord >= 0.0) and (y_coord < 2.*np.pi/sqrt3):
-                GM_int[i]  = 2. * param[0] * ( np.cos(x_coord) + np.cos(0.5 * x_coord + sqrt32 * y_coord) + np.cos(0.5 * x_coord - sqrt32 * y_coord) )
-                GM_int[i] += 2. * param[1] * ( np.cos(sqrt3 * y_coord) + np.cos(3./2. * x_coord + sqrt32 * y_coord) + np.cos(3./2. * x_coord - sqrt32 * y_coord) )
-                GM_int[i] += 2. * param[2] * ( np.cos(2. * x_coord) + np.cos(x_coord + sqrt3 * y_coord) + np.cos(x_coord - sqrt3 * y_coord) )
-                interaction.append(GM_int[i])
-                point_x.append(x_coord)
-                point_y.append(y_coord)
-                i += 1
-
-            elif (abs(y_coord - 2.* np.pi/sqrt3) <= 0.001) and (x_coord >= 0.0) and (x_coord <= 2.*np.pi/3.):
-                MK_int[i]  = 2. * param[0] * ( np.cos(x_coord) + np.cos(0.5 * x_coord + sqrt32 * y_coord) + np.cos(0.5 * x_coord - sqrt32 * y_coord) )
-                MK_int[i] += 2. * param[1] * ( np.cos(sqrt3 * y_coord) + np.cos(3./2. * x_coord + sqrt32 * y_coord) + np.cos(3./2. * x_coord - sqrt32 * y_coord) )
-                MK_int[i] += 2. * param[2] * ( np.cos(2. * x_coord) + np.cos(x_coord + sqrt3 * y_coord) + np.cos(x_coord - sqrt3 * y_coord) )
-                int_MK.append(MK_int[i])
-                point_x_MK.append(x_coord)
-                point_y_MK.append(y_coord)
-                i += 1
-
-    for j in range(len(point_x_MK)):
-        if j !=0 : # it shouldn't be here, but don't touch it (Nb2S)
-            point_x.append(point_x_MK[-1-j])
-            point_y.append(point_y_MK[-1-j])
-            interaction.append(int_MK[-1-j])
-
-
-    x_coord =  2.*np.pi / 3.
-    while x_coord >= 0.0:
-        x_coord -= kstep_x
-        if (x_coord < 0.0):
-            break
-        y_coord = x_coord * sqrt3
-
-        KG_int[i]  = 2. * param[0] * ( np.cos(x_coord) + np.cos(0.5 * x_coord + sqrt32 * y_coord) + np.cos(0.5 * x_coord - sqrt32 * y_coord) )
-        KG_int[i] += 2. * param[1] * ( np.cos(sqrt3 * y_coord) + np.cos(3./2. * x_coord + sqrt32 * y_coord) + np.cos(3./2. * x_coord - sqrt32 * y_coord) )
-        KG_int[i] += 2. * param[2] * ( np.cos(2. * x_coord) + np.cos(x_coord + sqrt3 * y_coord) + np.cos(x_coord - sqrt3 * y_coord) )
-        point_x.append(x_coord)
-        point_y.append(y_coord)
-        interaction.append(KG_int[i])
-        i += 1
-  
     return point_x, point_y, interaction
 
      

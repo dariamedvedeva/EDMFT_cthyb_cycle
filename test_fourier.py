@@ -15,4 +15,4 @@ number_of_discrete_tau_points           = 4096
 #discrete_fourier.compute(40.0, number_of_discrete_tau_points, 1024, 250, "Lambda_new_smooth")
 #discrete_fourier.compute(40.0, number_of_discrete_tau_points, 1024, 250, "Delta")
 # number of tau points, number of points for fourier?
-fourier.compute(40.0, number_of_discrete_tau_points, 1024, 120, "Delta")
+fourier.compute(50.0, number_of_discrete_tau_points, 1024, 120, "/Users/witcher/CALCULATORIUM/C2F_C2H_Hilbert/LDA/Delta")

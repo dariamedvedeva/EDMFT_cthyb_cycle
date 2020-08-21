@@ -6,14 +6,13 @@ import retarded_function
 import ct_hyb
 import numpy as np
 import subprocess
-import maxent
-import construct_discrete_hybr_functions
+#import construct_discrete_hybr_functions
 import os.path
 import sys
 import os
 import time
 import files_and_folders as tmp
-import pathes
+#import pathes
 import parameters
 from scipy import integrate
 
@@ -34,9 +33,9 @@ type_of_calc    = "edmft"
 #############################################
 
 if server:
-    path_to_exec_file, num_mpi_threads, path_to_maxent = pathes.get_server_run()
+    path_to_exec_file, num_mpi_threads, path_to_maxent = parameters.get_server_run()
 else:
-    path_to_exec_file, num_mpi_threads, path_to_maxent = pathes.get_local_run()
+    path_to_exec_file, num_mpi_threads, path_to_maxent = parameters.get_local_run()
 
 #############################################
 #                                           #
@@ -163,48 +162,44 @@ print (" ")
 #                 4. New Delta function                 #
 #-------------------------------------------------------#
 iteration_cycle.Gloc(mu, Nk, t, lattice_type, U)
-mixing_parameter = 0.05
+mixing_parameter = delta_mix
 iteration_cycle.new_delta(mixing_parameter)
 
 #-------------------------------------------------------#
 #               5. New Lambda function                  #
 #-------------------------------------------------------#
-if (type_of_calc == "edmft"):
-    interaction = Coulomb
-    iteration_cycle.X_loc(beta, interaction, Nk, lattice_type)
-    mixing_parameter = 0.45
-    iteration_cycle.new_lambda(mixing_parameter)
-else:
-    print("New Lambda function is not calculated.")
+#if (type_of_calc == "edmft"):
+#    interaction = Coulomb
+#    iteration_cycle.X_loc(beta, interaction, Nk, lattice_type)
+#    iteration_cycle.new_lambda(lambda_mix)
+#else:
+#    print("New Lambda function is not calculated.")
 
 #-------------------------------------------------------#
 #                    6. try fourier                     #
 #-------------------------------------------------------#
-file = 'Delta_new_minimized.dat'
-tmp.check_delta_file_exist(file)
-fourier.compute(beta, number_of_discrete_tau_points, number_of_fermionic_freqs, number_of_fermionic_freqs_for_fourier, 'Delta_new_minimized')
-
-lambda_file_name = 'Lambda_new_smooth.dat'
-retarded_function.compute_function(number_of_bosonic_frequencies, number_of_discrete_tau_points, beta, lambda_file_name)
-
-
-#-------------------------------------------------------#
-#             6. rename files for new_iteration         #
-#-------------------------------------------------------#
-#    iteration_cycle.rename_files(iteration, type_of_calc)
+#file = 'Delta_new_minimized.dat'
+#tmp.check_delta_file_exist(file)
+#fourier.compute(beta, number_of_discrete_tau_points, number_of_fermionic_freqs, number_of_fermionic_freqs_for_fourier, 'Delta_new_minimized')
+#
+#lambda_file_name = 'Lambda_new_smooth.dat'
+#retarded_function.compute_function(number_of_bosonic_frequencies, number_of_discrete_tau_points, beta, lambda_file_name)
 
 #-------------------------------------------------------#
-#                    7. plot                            #
+#                    6. plot                            #
 #-------------------------------------------------------#
-os.system("./plot_second_part.sh")
-os.system("mv plot.pdf plot_{}.pdf".format(str('sec_part')))
+os.system("./plot.sh")
+os.system("mv plot.pdf plot_{}.pdf".format(str("1")))
 
 #-------------------------------------------------------#
-#             6. Copy the results into folder           #
+#             7. Copy the results into folder           #
 #-------------------------------------------------------#
-#    tmp.create_dir_with_files(type_of_calc, iteration)
+#tmp.create_dir_with_files(type_of_calc,"1")
 
-
+#-------------------------------------------------------#
+#             8. rename files for new_iteration         #
+#-------------------------------------------------------#
+#tmp.prepare_files_for_new_it(type_of_calc, "1")
 # print("Time for one iteration {} min".format(np.round((time.time() - start_time)/60),2))
         
 print ("************ Calculation is finished. ************")

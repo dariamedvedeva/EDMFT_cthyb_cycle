@@ -10,11 +10,10 @@ from scipy.interpolate import UnivariateSpline
 from pylab import *
 from scipy.optimize import curve_fit
 import delta_min
-from parameters import get_model_parameters_for_minimization_delta
 
 global sqrt32, sqrt3
-sqrt32 = np.sqrt(3.)/2.
-sqrt3 = np.sqrt(3.)
+sqrt32  = np.sqrt(3.)/2.
+sqrt3   = np.sqrt(3.)
 global triang_points
 
 def set_num_of_tr_points(number):
@@ -241,7 +240,7 @@ def interaction_dispersion(filename, Nk, lattice_type, param):
         
         # SQUARE
         if lattice_type == 'square':
-            interaction[i] = -2. * param * np.sum(np.cos(-np.pi + k))
+            interaction[i] = 2. * param * np.sum(np.cos(-np.pi + k))
         # TRIANG
         if lattice_type == 'triangular':
             k_x = k[0]
@@ -423,16 +422,38 @@ def new_delta(mix_par):
     # minimization --> perfect.
     # Should be done twice.
     print(" >> minimization")
-    num_of_used_freqs, bath_size, filename, params, filename_output = get_model_parameters_for_minimization_delta()
+    num_of_used_freqs = 25
+    bath_size = 9
+    filename = 'Delta_new.dat'
+    params = [-5.0,-2.5,-1.5,-0.5,0.0,0.5,1.5,2.5,5.0,0.5,0.1,0.5,0.3,0.5,0.4,0.6,0.72,0.5]
+#    params = [4.884,29.27,-5.584,-0.502,-0.151,0.393,3.614,6.204,36.624,0.06,0.001,0.0,0.063,0.078,0.136,0.029,0.0,0.12]
     D2 = delta_min.DeltaMin(filename, bath_size, num_of_used_freqs, params)
     coeffs2 = D2.minimize("delta") # coeffs[E ... , V ...]
     coeffs2[bath_size : bath_size *2] = abs(coeffs2[bath_size : bath_size *2])
     print("Result values:")
     print(*np.around(coeffs2, decimals=3), sep = ",")
-    
+    log_file = open("log.file", "a")
+    log_file.write("Delta minimization results:")
+    log_file.write("\n")
+    log_file.write(str(coeffs2))
+    log_file.write("\n")
+    log_file.close()
     minimized_function  = D2.delta_model(frequencies.imag, coeffs2)
-    np.savetxt(filename_output, np.column_stack((frequencies.imag, minimized_function.real, minimized_function.imag)))
+    filename = 'Delta_new_minimized.dat'
+    np.savetxt(filename, np.column_stack((frequencies.imag, minimized_function.real, minimized_function.imag)))
     print("Minimized Delta function was saved into the file " + filename + ".\n" )
+    
+    # construct Delta real from -2 to +2 for 1000 points
+    min = -1.996004
+    max = 1.996004
+    num_of_points = 1000
+    step = max * 2 /num_of_points
+    freq = np.zeros(num_of_points, np.float)
+    for i in range(num_of_points):
+        freq[i] = min + step * i
+    minimized_function_r  = D2.delta_model_real(freq, 0.1, coeffs2)
+    filename = 'Delta_r.dat'
+    np.savetxt(filename, np.column_stack((freq, minimized_function_r.real, minimized_function_r.imag)))
     # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - #
     return 0
 

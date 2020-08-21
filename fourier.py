@@ -43,12 +43,10 @@ def read_delta_frequencies(filename, beta, total_number_of_freqs, freqs_no_noise
         Delta  = True
      
     # frequencies from file
-    #freq_left    = -1.j*D[::-1,0]
     freq_right  = 1.j*D[:freqs_no_noise,0]
     freq_left   = -freq_right[::-1]
 
     # function from file
-    #func_left   = D[::-1,1] - 1j * D[::-1,2]
     func_right  = D[:freqs_no_noise,1] + 1j * D[:freqs_no_noise,2]
     func_left   = func_right[::-1].real - 1j * func_right[::-1].imag
 
@@ -72,7 +70,6 @@ def read_delta_frequencies(filename, beta, total_number_of_freqs, freqs_no_noise
     function_left_add_part = function_tail[::-1].real - 1j * function_tail[::-1].imag
     frequencies = np.concatenate((freq_left[:], freq_right[:]))
     function    = np.concatenate((func_left[:], func_right[:]))
-#    np.savetxt("Delta_LEFT_RIGHT.dat", np.column_stack((frequencies.imag, function.real, function.imag)))
     return frequencies, function
 
 def chi(frequencies, function):
@@ -131,7 +128,7 @@ def compute(beta, num_of_time_points, number_of_freqs, number_of_freqs_for_fouri
 
     # 3.5 Check that Delta_tau < 0
     error_text = 'Numerical problem: Delta(tau) > 0.0. \n' \
-                 'Recommendations: use smaller mixing parameter ||  increase the number of sweeps || increase number of points for minimization. \n'
+                 'Recommendations: use smaller mixing parameter ||  increase the number of sweeps || increase number of points for minimization || decrease number of frequencies for the fourier transform. \n'
     def positive_check(val, error):
         if (val >= 0.0):
             print(error_text)
