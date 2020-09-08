@@ -17,9 +17,9 @@ num_of_neighbours   = 3
 
 #  Hubbard model parameters
 t    = np.empty(num_of_neighbours, dtype=np.float)
-t[0] = t[1] = t[2] = 0.0
-Coulomb     = np.empty(num_of_neighbours, dtype=np.float)
-Coulomb[0]  = Coulomb[1] = Coulomb[2] = 0.0
+t    = 0.0
+Coulomb  = np.empty(num_of_neighbours, dtype=np.float)
+Coulomb  = 0.0
 
 #  ct_hub parameters
 sweeps     = 10**10          # 10**8 .. 10**10 is enough
@@ -46,27 +46,27 @@ def set_model_parameters():
     global max_it_num, start_from_it
     lattice_type        = 'triangular' # write square || triangular
     beta                = 50.     # inversive temperature as \beta = 1./T
-    U                   = 1.0      # local (inter-site) Hubbard repulsion
+    U                   = 0.6646      # local (inter-site) Hubbard repulsion
     #mu                  = U/2.   # for a half filling U / 2. In case of square lattice it should be mu = U/2. !!!!
     #mu                  = 0.8 * t
     hartree_shift       = 0.0      # Hartree shift (\mu in ct-hyb). for a half filling U / 2. In the tutorial it is written
     # that mu = U/2 isn't implemented, but it is (!!!). Automatically mu = U/2, for half-filling.
     # The sign problem can occure away from half-filling. Don't touch.
     Nk                  = 64       # num. of kpoints in each direction, 64 is better for qmc (Friedrich K.)
-    num_of_neighbours   = 3
+    num_of_neighbours   = 6
 
     #ct_hub parameters
-    sweeps     = 10**8          # 10**8 .. 10**11
+    sweeps     = 10**10          # 10**8 .. 10**11
     hours_max  = 3               # max hours
     time_limit = hours_max*60*60 # in seconds
 
     #mixing_parameters
-    delta_mix  = 0.70
+    delta_mix  = 0.30
     lambda_mix = 0.70
 
     # iterations
-    max_it_num = 4
-    start_from_it = 1
+    max_it_num = 25
+    start_from_it = 18
     
     if (start_from_it > max_it_num):
         print ("The number of start iteration is less than the number of the last one.")
@@ -80,14 +80,20 @@ def set_model_parameters():
     # In papers it figurates as V.
 
     t    = np.empty(num_of_neighbours, dtype=np.float)
-    t[0] = -0.233
-    t[1] = 0.0
-    t[2] = 0.0
+    t[0] = 0.0115
+    t[1] = 0.0917
+    t[2] = -0.0004
+    t[3] = -0.0073
+    t[4] = -0.0142
+    t[5] = 0.0003
 
     Coulomb     = np.empty(num_of_neighbours, dtype=np.float)
-    Coulomb[0]  = 1.0 #2.46
-    Coulomb[1]  = 0.0
-    Coulomb[2]  = 0.0
+    Coulomb[0]  = 0.3598
+    Coulomb[1]  = 0.2473
+    Coulomb[2]  = 0.2190
+    Coulomb[3]  = 0.1630
+    Coulomb[4]  = 0.1416
+    Coulomb[5]  = 0.1132
 
     mu = 0.0
     particle_hole_symm  = 0
@@ -104,7 +110,7 @@ def set_model_parameters_for_minimization_delta():
     filename_output_delt_min = 'Delta_new_minimized.dat'
 
 def get_model_parameters_for_minimization_delta():
-     global num_of_used_freqs, bath_size, filename, params, filename_output_delt_min     
+     global num_of_used_freqs, bath_size, filename, params, filename_output_delt_min
      return num_of_used_freqs, bath_size, filename, params, filename_output_delt_min
 
 def get_model_parameters():
