@@ -43,20 +43,25 @@ def construct_hybr_functions(beta, ferm, bos, U, Ek, Vk, w0p, Wp):
     frequencies2, initial_lambda = init_lambda(w0p, Wp, bos, beta)
     rewrite_Phi_file_for_cthyb_solver(frequencies2, initial_lambda)
 
+
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# CODE
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 parameters.set_model_parameters()
 lattice_type, beta, U, hartree_shift, Nk, num_of_neighbours, t, Coulomb, mu, particle_hole_symm, \
 sweeps, time_limit, delta_mix, lambda_mix, max_it_num, start_from_it \
     = parameters.get_model_parameters()
 
 number_of_fermionic_freqs               = 1024
-number_of_fermionic_freqs_for_fourier   = 1024
-number_of_bosonic_frequencies           = 1024
-number_of_discrete_tau_points           = 4096
-
-Ek  = [-0.5, 0.0, 0.5]
-Vk  = [0.32, 0.32, 0.32]
-w0p = [1.1, 0.5]
-Wp  = [0.75, 0.35]
+#number_of_fermionic_freqs_for_fourier   = 1024
+#number_of_bosonic_frequencies           = 1024
+#number_of_discrete_tau_points           = 4096
+#
+#Ek  = [-0.5, 0.0, 0.5]
+#Vk  = [0.32, 0.32, 0.32]
+#w0p = [1.1, 0.5]
+#Wp  = [0.75, 0.35]
 
 #construct_hybr_functions(beta, number_of_fermionic_freqs, number_of_bosonic_frequencies, U, Ek, Vk, w0p, Wp)
 

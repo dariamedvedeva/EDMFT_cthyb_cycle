@@ -3,6 +3,7 @@
 
 import numpy as np
 import sys
+import os
 
 
 Delta = False
@@ -135,10 +136,8 @@ def compute(beta, num_of_time_points, number_of_freqs, number_of_freqs_for_fouri
             log_file = open("log.file", "a")
             log_file.write(error_text)
             log_file.close()
+            os.system("./plot_fourier.sh")
             sys.exit()
-
-    for value in delta_time.real:
-        positive_check(value, error_text)
 
     f = open(filename + "_tau_ct_hyb.dat", "w")
     for i in range(len(tau)):
@@ -151,13 +150,16 @@ def compute(beta, num_of_time_points, number_of_freqs, number_of_freqs_for_fouri
         if(i < len(tau) - 1):
             f.write('\n')
     f.close()
+    
+    for value in delta_time.real:
+        positive_check(value, error_text)
 
     # +++++++++++++++++ #
     # 4. FT t -> w
     # +++++++++++++++++ #
-    print ("FT tau -> omega")
-    delta_freq2 = DFT(delta_time.real, frequencies, tau)
-#    np.savetxt(filename + "_check_FT.dat", np.column_stack((frequencies.imag, delta_freq2.real, delta_freq2.imag)))
+#    print ("FT tau -> omega")
+#    delta_freq2 = DFT(delta_time.real, frequencies, tau)
+##    np.savetxt(filename + "_check_FT.dat", np.column_stack((frequencies.imag, delta_freq2.real, delta_freq2.imag)))
 
 def gt_tail(beta, m, tau):
     """returns the Fourier transform G(tau)=(1/BETA)*\sum_{n=-\infty}^\infty e^{-i w_n*tau } dtau
